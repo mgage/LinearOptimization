@@ -1,0 +1,135 @@
+##DESCRIPTION
+##  Linear programming problem
+##ENDDESCRIPTION
+
+##KEYWORDS('algebra', 'inequality', 'fraction')
+
+## DBsubject('Linear optimization')
+## DBchapter('')
+## DBsection('')
+## Date('9/11/2013')
+## Author('M. Gage')
+## Institution('U. of Rochester')
+## TitleText1('')
+## EditionText1('')
+## AuthorText1('')
+## Section1('')
+## Problem1('')
+
+########################################################################
+
+DOCUMENT();      
+
+loadMacros(
+   "PGstandard.pl",     # Standard macros for PG language
+   "MathObjects.pl",
+   "PGessaymacros.pl",
+   "parserLinearInequality.pl",
+   "parserImplicitPlane.pl",
+   "PGML.pl",
+   #"source.pl",        # allows code to be displayed on certain sites.
+   "PGcourse.pl",      # Customization file for the course
+);
+
+# Print problem number and point value (weight) for the problem
+TEXT(beginproblem());
+
+# Show which answers are correct and which ones are incorrect
+$showPartialCorrectAnswers = 1;
+
+##############################################################
+#
+#  Setup
+#
+#
+Context("LinearInequality");
+Context()->variables->add(x1=>'Real',x2=>'Real',x3=>'Real',x4=>'Real');
+
+##############################################################
+#
+#  Text
+#
+#
+$constraint1 = LinearInequality("10x1 + 12x2 +25x3 +20x4 <= 5000");
+$constraint2 = LinearInequality("2x1 + 43x2 +8x3 +12x4 <= 1500");
+$answer1 = List($constraint1, $constraint2);
+
+$objectiveFunction = Formula("z=100x1+150x2+200x3+400x4");
+
+Context()->texStrings;
+BEGIN_PGML
+
+A manufacturer of kitchen cabinets is trying to maximize the weekly revenue of a factory.  Many orders 
+for bookcases, cabinets with drawers, cabinets with doors, and custom designed cabinets have been
+received by the manufacturer.  The material, labor and revenue for each of these products is given below.  
+
+Suppose that 5000 units of wood and 1500 units of labor are available.  Let [`x_{1}\dots x_{4}`] be the number of units
+of each type made.  
+ 
+Write the linear programming problem that solves this. (This is an integer linear optimization
+problem since the answers must be integers.  They are much harder to solve but no harder to set up than an ordinary LOP. )
+
+[``
+\begin{matrix}
+	& \text{Cabinet type} & \text{wood} & \text{labor} & \text{revenue} \\ 
+	x_{1}& \text{bookshelf} & 10 & 2       & 100 \\ 	 
+	x_{2}& \text{with doors} & 12 & 4      & 150 \\ 	 
+	x_{3}& \text{with drawers} & 25 &  8 & 200 \\ 	 
+	x_{4}& \text{custom} & 20 & 12 & 400 \\  
+\end{matrix}
+``]
+
+
+Maximize [`z = `] [@ ANS($objectiveFunction->cmp ),  ans_rule(80)  @]*
+
+with constraints: (Place each constraint on a separate line with a comma at the end. )
+
+[@ ANS($answer1->cmp),  ans_box(4,80)    @]*
+
+Explain your reasoning
+
+[@ ANS(essay_cmp() ), essay_box(10, 80)    @]*
+
+END_PGML
+Context()->normalStrings;
+
+# unfortunately this is ILOP so can't solve with simplex method
+#The maximum revenue they can earn is $[____]{62500}
+#[@  htmlLink("http://www.zweigmedia.com/RealWorld/simplex.html", "Link to #simplex tool") @]*
+##############################################################
+#
+#  Answers
+#
+#
+
+
+# relative tolerance --3.1412 is incorrect but 3.1413 is correct
+# default tolerance is .01 or one percent.
+BEGIN_SOLUTION
+Maximize
+\(z = 100x_{1}+ 150x_{2}+200x_{3}+400x_{4} \)
+
+
+with constraints 
+
+\[
+\begin{aligned}
+10x_{1} + 12x_{2} +25x_{3}+20x_{4}  &\le 5000\\
+2x_{1}+43x_{2}+8x_{3} +12x_{4}    &\le 1500\\
+x_{1},x_{2}, x_{3}, x_{4}\ge 0
+\end{aligned}
+\]
+
+END_SOLUTION
+#Optimal Solution: z = 62500; x1 = 375, x2 = 0, x3 = 0, x4 = 62.5
+# not an integer solution.
+# maximize  z = 100x1+ 150x2+200x3+400x4 subject to
+
+# 10x1 + 12x2 +25x3+20x4  <= 5000
+# 2x1+43x2+8x3 +12x4    <= 1500
+
+
+
+
+
+ENDDOCUMENT();        

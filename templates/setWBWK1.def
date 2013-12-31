@@ -1,0 +1,12 @@
+
+openDate          = 09/07/2013 at 06:00am EDT
+dueDate           = 12/13/2013 at 05:00am EST
+answerDate        = 12/13/2013 at 10:00am EST
+paperHeaderFile   = defaultHeader
+screenHeaderFile  = defaultHeader
+description       = 
+problemList       = 
+local/setWBWK1/equiv_constraints1.pg, 1, -1 
+local/setWBWK1/equiv_constraint2.pg, 1, -1 
+local/setWBWK1/equiv_constraint3.pg, 1, -1 
+

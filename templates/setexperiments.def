@@ -1,0 +1,18 @@
+
+openDate          = 11/10/2013 at 04:00pm EST
+dueDate           = 01/27/2014 at 04:00pm EST
+answerDate        = 01/27/2014 at 04:00pm EST
+paperHeaderFile   = ASimpleCombinedHeaderFile.pg
+screenHeaderFile  = ASimpleCombinedHeaderFile.pg
+description       = 
+problemList       = 
+experiments/cabinets_exp.pg, 1, -1 
+experiments/listequalities.pg, 1, -1 
+experiments/inequalities.pg, 1, -1 
+experiments/inequalities2.pg, 1, -1 
+experiments/inequalities3.pg, 1, -1 
+experiments/WBWK5_2_exp1.pg, 1, -1 
+experiments/WBWK5_2_exp2.pg, 1, -1 
+experiments/essay_answers.pg, 1, -1 
+local/experiments/listequalities3.pg, 1, -1 
+

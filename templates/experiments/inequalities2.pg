@@ -1,0 +1,86 @@
+##DESCRIPTION
+##  Algebra problem: true or false for inequality 
+##ENDDESCRIPTION
+
+##KEYWORDS('algebra', 'inequality', 'fraction')
+
+## DBsubject('Algebra')
+## DBchapter('Fundamentals')
+## DBsection('Real Numbers')
+## Date('6/3/2002')
+## Author('')
+## Institution('')
+## TitleText1('Precalculus')
+## EditionText1('3')
+## AuthorText1('Stewart, Redlin, Watson')
+## Section1('1.1')
+## Problem1('22')
+
+########################################################################
+
+DOCUMENT();      
+
+loadMacros(
+   "PGstandard.pl",     # Standard macros for PG language
+   "MathObjects.pl",
+   "parserLinearInequality.pl",
+  # "contextInequalities.pl",
+   #"source.pl",        # allows code to be displayed on certain sites.
+   #"PGcourse.pl",      # Customization file for the course
+);
+Context("LinearInequality");
+# Print problem number and point value (weight) for the problem
+TEXT(beginproblem());
+
+# Show which answers are correct and which ones are incorrect
+$showPartialCorrectAnswers = 1;
+
+##############################################################
+#
+#  Setup
+#
+#
+Context()->variables->add( x1=>'Real', x2=>'Real', x3=>'Real');
+$plane1 = LinearInequality("3x1 +5x2+6x3 <= 5");
+$plane2 = LinearInequality("-4x1+3x2 <= -3");
+$answer1=$plane1;
+$answer2 = $plane2;
+$answer3 = List($answer1, $answer2);
+$four = Real(4);
+$five = Real(5);
+$statement2 = Compute($four < $five ) ;
+$statement1 = Compute($four = $five);
+$statement3 = Compute( ($four < $five)?1:0 ) ;
+##############################################################
+#
+#  Text
+#
+#
+
+Context()->texStrings;
+BEGIN_TEXT
+
+
+Enter equation 1 \($plane1 \) $BR\{ $answer1->ans_rule(40) \}  $BR
+Enter equation 2 \($plane2 \) $BR\{$answer2->ans_rule(40) \}  $BR
+Enter both equations separated by a comma \{ ans_box(3,40) \}$BR
+
+$PAR
+equality: $statement1 $BR
+inequality: $statement2 $BR
+equality: $statement3 $BR
+
+END_TEXT
+Context()->normalStrings;
+
+##############################################################
+#
+#  Answers
+#
+#
+
+ANS($answer1->cmp,
+$answer2->cmp,
+$answer3->cmp);
+
+ENDDOCUMENT();        

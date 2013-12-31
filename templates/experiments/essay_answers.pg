@@ -1,0 +1,90 @@
+##DESCRIPTION
+##  Algebra problem: true or false for inequality 
+##ENDDESCRIPTION
+
+##KEYWORDS('algebra', 'inequality', 'fraction')
+
+## DBsubject('Algebra')
+## DBchapter('Fundamentals')
+## DBsection('Real Numbers')
+## Date('6/3/2002')
+## Author('')
+## Institution('')
+## TitleText1('Precalculus')
+## EditionText1('3')
+## AuthorText1('Stewart, Redlin, Watson')
+## Section1('1.1')
+## Problem1('22')
+
+########################################################################
+
+DOCUMENT();      
+
+loadMacros(
+   "PGstandard.pl",     # Standard macros for PG language
+   "MathObjects.pl",
+   "PGessaymacros.pl",
+   "PGmatrixmacros.pl",
+   #"source.pl",        # allows code to be displayed on certain sites.
+   #"PGcourse.pl",      # Customization file for the course
+);
+
+# Print problem number and point value (weight) for the problem
+TEXT(beginproblem());
+
+# Show which answers are correct and which ones are incorrect
+$showPartialCorrectAnswers = 1;
+
+##############################################################
+#
+#  Setup
+#
+#
+Context("Numeric");
+
+##############################################################
+#
+#  Text
+#
+#
+$answermatrix = Matrix( create2d_matrix("2 3 4, 2 1 5") );
+#$string_matrix_cmp =  sub  {
+#      $string = shift @_;
+#      my $rh_answer = new AnswerHash( 
+#             score  => $answermatrix == Matrix(create2d_matrix($string)),
+#	     correct_ans  	=> 	$answermatrix,
+#	     student_ans  	=> 	"",
+#	     ans_message  => 	"",
+#	     type		   	=> 	'custom'
+ #     );
+  #    $rh_answer;
+#};
+Context()->texStrings;
+BEGIN_TEXT
+
+First essay answer \{essay_box(3,80)\} $PAR
+Second essay answer \{essay_box(3,80)\}
+
+$PAR
+matrix:
+$PAR
+\(   \{Matrix( create2d_matrix("2 3 4, 2 1 5") ) \}   \)
+
+\{ans_box(3,80) \}
+END_TEXT
+
+Context()->normalStrings;
+
+##############################################################
+#
+#  Answers
+#
+#
+
+ANS(essay_cmp(), essay_cmp());
+ANS(  check_matrix_from_ans_box_cmp($answermatrix)   );
+# relative tolerance --3.1412 is incorrect but 3.1413 is correct
+# default tolerance is .01 or one percent.
+
+
+ENDDOCUMENT();        

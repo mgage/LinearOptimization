@@ -1,0 +1,93 @@
+# ASimpleCombinedHeaderFile.pg
+# This header file can be used for both the screen and hardcopy output
+
+
+DOCUMENT();
+
+loadMacros(
+	"PG.pl",
+	"PGbasicmacros.pl",
+
+);
+
+TEXT($BEGIN_ONE_COLUMN);
+
+####################################################
+#
+# The item below printed out only when a hardcopy is made.
+#
+####################################################
+
+
+
+TEXT(MODES(TeX =>EV3(<<'EOT'),HTML=>""));
+
+\noindent {\large \bf $studentName}
+\hfill
+{\large \bf {\{protect_underbar($courseName)\}}}
+% Uncomment the line below if this course has sections. Note that this is a comment in TeX mode since this is only processed by LaTeX
+%   {\large \bf { Section: \{protect_underbar($sectionName)\} } }
+\par
+\noindent{\large \bf {Assignment \{protect_underbar($setNumber)\}  due $formatedDueDate}}
+\par\noindent \bigskip
+% Uncomment and edit the line below if this course has a web page. Note that this is a comment in TeX mode.
+%See the course web page for information http://yoururl/yourcourse
+
+EOT
+
+####################################################
+#
+# End of hardcopy only output.
+#
+####################################################
+
+
+####################################################
+#
+# The items below are printed out only when set is displayed on screen
+# 
+####################################################
+TEXT(MODES(TeX =>"",HTML=>EV3(<<'EOT')));
+
+$BBOLD WeBWorK  Assignment \{ protect_underbar($setNumber) \}  is due :  $formattedDueDate. $EBOLD
+$PAR
+Here's the list of 
+\{ htmlLink(qq!http://webwork.maa.org/wiki/Available_Functions!,"functions and symbols") \}
+ which WeBWorK understands.
+$BR
+EOT
+
+####################################################
+# Uncomment and edit the lines below if this course has a web page. Note that this is comment in Perl mode. 
+# IMPORTANT: Make sure the EOT at the bottom is at the beginning of a line with no spaces preceeding it.
+#TEXT(MODES(TeX =>"",HTML=>EV3(<<'EOT')));
+#See the course web page for information \{ htmlLink(qq!http://yoururl/yourcourse!,"your course name") \}
+#EOT
+####################################################
+
+####################################################
+#
+# End of screen only output.
+#
+####################################################
+
+####################################################
+#
+# Anything between the BEGIN_TEXT AND END_TEXT lines
+# will be printed in both screen and hardcopy output
+#
+####################################################
+
+BEGIN_TEXT
+The definition of "standard form" varies from textbook to textbook.  
+$PAR
+For the problems in this homework set, "standard form" means having
+a maximum problem with less than or equal to constraints or a minimum problem with greater than or equal to constraints.  In addition the problem should have a clear feasible solution -- it should be ready for "phase 2".  If you have to start by finding a feasible solution using the Auxiliary method or some other technique then, by this definition, it is not in standard form.
+$PAR
+The definitions of standard form in H and in GNS are similar, but they don't require that the presentations have an obvious feasible solution.
+END_TEXT
+
+
+TEXT($END_ONE_COLUMN);
+
+ENDDOCUMENT();        # This should be the last executable line in the problem.

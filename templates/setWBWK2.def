@@ -1,0 +1,19 @@
+
+openDate          = 09/13/2013 at 08:39pm EDT
+dueDate           = 10/20/2013 at 06:00am EDT
+answerDate        = 10/20/2013 at 06:00am EDT
+paperHeaderFile   = defaultHeader
+screenHeaderFile  = defaultHeader
+description       = 
+problemList       = 
+local/setWBWK2/cabinets.pg, 1, -1 
+local/setWBWK2/labor.pg, 1, -1 
+local/setWBWK2/cabinet_dual.pg, 1, -1 
+local/Library/NAU/setLinearProg/Graph_LinearSys_1.pg, 1, -1 
+Library/NAU/setLinearProg/Graph_LinearSys_2.pg, 1, -1 
+Library/NAU/setLinearProg/Graph_LinearSys_3.pg, 1, -1 
+Library/NAU/setLinearProg/Graph_LinearSys_6.pg, 1, -1 
+Library/NAU/setLinearProg/Graph_LinearSys_7.pg, 1, -1 
+Library/NAU/setLinearProg/LinearProg_3.pg, 1, -1 
+Library/NAU/setLinearProg/LinearProg_5.pg, 1, -1 
+
