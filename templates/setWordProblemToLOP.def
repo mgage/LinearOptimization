@@ -1,0 +1,12 @@
+
+openDate          = 12/07/2013 at 04:05pm EST
+dueDate           = 01/14/2014 at 04:05pm EST
+answerDate        = 01/14/2014 at 04:05pm EST
+paperHeaderFile   = ASimpleCombinedHeaderFile.pg
+screenHeaderFile  = setWordProblemToLOP/ASimpleCombinedHeaderFile.pg
+description       = 
+problemList       = 
+setWordProblemToLOP/cabinets2.pg, 1, -1 
+setWordProblemToLOP/labor2.pg, 1, -1 
+setWordProblemToLOP/cabinets2_dual.pg, 1, -1 
+

@@ -1,0 +1,161 @@
+##DESCRIPTION
+##  Linear programming problem
+##ENDDESCRIPTION
+
+##KEYWORDS('algebra', 'inequality', 'fraction')
+
+## DBsubject('Linear optimization')
+## DBchapter('')
+## DBsection('')
+## Date('9/11/2013')
+## Author('M. Gage')
+## Institution('U. of Rochester')
+## TitleText1('')
+## EditionText1('')
+## AuthorText1('')
+## Section1('')
+## Problem1('')
+
+########################################################################
+
+DOCUMENT();      
+
+loadMacros(
+   "PGstandard.pl",     # Standard macros for PG language
+   "MathObjects.pl",
+   "parserLinearInequality.pl",
+   "parserPopUp.pl",
+   "source.pl",        # allows code to be displayed on certain sites.
+   "PGcourse.pl",      # Customization file for the course
+);
+
+# Print problem number and point value (weight) for the problem
+TEXT(beginproblem());
+
+# Show which answers are correct and which ones are incorrect
+$showPartialCorrectAnswers = 1;
+Context("LinearInequality");
+Context()->variables->are( x1=>'Real', x2=>'Real', x3=>'Real',x4=>'Real');
+
+##############################################################
+#
+#  Setup
+#
+#
+#data
+$rev1 =100;
+$rev2 =150;
+$rev3 = 200;
+$rev4 = 400;
+$wood1 = 10;
+$labor1 = 2;
+$wood2 = 12;
+$labor2 = 43;
+$wood3 = 25;
+$labor3 = 8;
+$wood4  = 20;
+$labor4 = 12;
+$wood_total = 5000;
+$labor_total = 1500;
+
+#objective function
+$popup = PopUp([qw(? Maximize Minimize)], 'Maximize');
+$objfunction =  Compute("${rev1}x1 + ${rev2}x2 + ${rev3}x3 + ${rev4}x4") ;
+
+#constraints
+$constraint1 = Compute("10x1+12x2+25x3+20x4 <= 5000");
+$constraint2 = Compute("2x1+43x2+8x3+12x4   <= 1500");
+$constraints = List($constraint1, $constraint2);
+
+
+##############################################################
+#
+#  Text
+#
+#
+
+
+Context()->texStrings;
+BEGIN_TEXT
+
+A manufacturer of kitchen cabinets is trying to maximize the weekly revenue of a factory.  Many orders 
+for bookcases, cabinets with drawers, cabinets with doors, and custom designed cabinets have been
+received by the manufacturer.  The material, labor and revenue for each of these products is given below.  
+
+  $PAR
+  
+Suppose that 5000 units of wood and 1500 units of labor are available.  Let \(x_{1}\dots x_{4} \) be the number of units
+of each type made.  
+
+  $PAR
+  
+Write the linear programming problem that solves this. (This is an integer linear optimization
+problem since the answers must be integers.  They are much harder to solve but no harder to set up than an ordinary LOP. )
+
+Write the objective function for maximizing revenue using variables x1, x2, x3, and x4.
+
+$PAR\{ANS($popup->cmp), $popup->menu\}\(revenue = \)
+\{ANS($objfunction->cmp), ans_box(2,60)\}$PAR
+
+Now write the constraints for the mathematical linear optimization problem (LOP) in standard form.  Separate each
+of the constraint equations by a comma. The order of the constraint equations does not matter.
+$PAR
+\{ANS($constraints->cmp), ans_box(3, 80)\}$BR 
+the variables are non-negative: \(x_{1},x_{2}, x_{3}, x_{4}\ge 0\). You don't need to include this.
+
+\[
+\begin{matrix}
+	& \text{Cabinet type} & \text{wood} & \text{labor} & \text{revenue} \\ 
+	x_{1}& \text{bookshelf} & $wood1 & $labor1       & $rev1 \\ 	 
+	x_{2}& \text{with doors} & $wood2 & $labor2      & $rev2 \\ 	 
+	x_{3}& \text{with drawers} & $wood3 &  $labor3 & $rev3 \\ 	 
+	x_{4}& \text{custom} & $wood4 & $labor4 & $rev4 \\  
+\end{matrix}
+\]
+
+
+END_TEXT
+Context()->normalStrings;
+
+# unfortunately this is ILOP so can't solve with simplex method
+#The maximum revenue they can earn is $[____]{62500}
+#[@  htmlLink("http://www.zweigmedia.com/RealWorld/simplex.html", "Link to #simplex tool") @]*
+##############################################################
+#
+#  Answers
+#
+#
+
+
+Context()->texStrings;
+BEGIN_SOLUTION
+Maximize
+\(z= $objfunction \)
+
+with constraints 
+
+
+\[\begin{aligned}
+$constraint1 &\\
+$constraint2 &\\
+x_{1},x_{2}, x_{3}, x_{4}\ge 0 &
+\end{aligned}
+\]
+END_SOLUTION
+# the aligned equations are not quite as nice as one might like or as you can obtain by hand.
+
+# perhaps adjust the tex strings in LinearInequality?
+Context()->normalStrings;
+
+#Optimal Solution: z = 62500; x1 = 375, x2 = 0, x3 = 0, x4 = 62.5
+# not an integer solution.
+# maximize  z = 100x1+ 150x2+200x3+400x4 subject to
+
+# 10x1 + 12x2 +25x3+20x4  <= 5000
+# 2x1+43x2+8x3 +12x4    <= 1500
+
+
+
+
+
+ENDDOCUMENT();        

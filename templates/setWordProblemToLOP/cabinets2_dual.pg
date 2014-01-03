@@ -1,0 +1,204 @@
+##DESCRIPTION
+##  Linear programming problem
+##ENDDESCRIPTION
+
+##KEYWORDS('algebra', 'inequality', 'fraction')
+
+## DBsubject('Linear optimization')
+## DBchapter('')
+## DBsection('')
+## Date('9/11/2013')
+## Author('M. Gage')
+## Institution('U. of Rochester')
+## TitleText1('')
+## EditionText1('')
+## AuthorText1('')
+## Section1('')
+## Problem1('')
+
+########################################################################
+
+DOCUMENT();      
+
+loadMacros(
+   "PGstandard.pl",     # Standard macros for PG language
+   "MathObjects.pl",
+    "MathObjects.pl",
+   "PGessaymacros.pl",
+   "parserLinearInequality.pl",
+   "parserPopUp.pl",
+   "parserMultiAnswer.pl",
+   "source.pl",        # allows code to be displayed on certain sites.
+   "PGcourse.pl",      # Customization file for the course
+);
+
+# Print problem number and point value (weight) for the problem
+TEXT(beginproblem());
+
+# Show which answers are correct and which ones are incorrect
+$showPartialCorrectAnswers = 1;
+
+##############################################################
+#
+#  Setup
+#
+#
+Context("LinearInequality");
+Context()->variables->are(y1=>'Real',y2=>'Real');
+#data
+$rev1 =100;
+$rev2 =150;
+$rev3 = 200;
+$rev4 = 400;
+$wood1 = 10;
+$labor1 = 2;
+$wood2 = 12;
+$labor2 = 43;
+$wood3 = 25;
+$labor3 = 8;
+$wood4  = 20;
+$labor4 = 12;
+$wood_total = 5000;
+$labor_total = 1500;
+
+#objective function
+$popup = PopUp([qw(? Maximize Minimize)], 'Maximize');
+$objfunction =  Compute("${wood_total}y1 + ${labor_total}y2") ;
+
+
+#constraints
+$constraint1 = Compute("${wood1}y1 + ${labor1}y2 >= $rev1");
+$constraint2 = Compute("${wood2}y1 + ${labor2}y2 >= $rev2");
+$constraint3 = Compute("${wood3}y1 + ${labor3}y2 >= $rev3");
+$constraint4 = Compute("${wood4}y1 + ${labor4}y2 >= $rev4");
+$constraints = List($constraint1, $constraint2, $constraint3, $constraint4);
+
+# define the multianswer question
+# check that the \(y1, y2\) point is feasible and that the 
+# value they determine is the submitted estimate.
+
+#FIXME -- the suggested correct answer is not adjusted for changing parameters
+# Check that the student answers satisfy constaints
+# Check that the value of w (objfunction) calculated from those answers has been entered correctly.
+$multianswer = MultiAnswer(Real(20),Real(0),$objfunction->eval(y1=>20,y2=>0)) -> with(
+	singleResult => 1,
+	checker=>sub{
+		my ($correct, $student, $self) = @_;
+		my ($sy1,$sy2,$sobj) = @{$student};
+		my $const1Q = $constraint1->eval(y1=>$sy1,y2=>$sy2);
+		my $const2Q = $constraint2->eval(y1=>$sy1,y2=>$sy2);
+		my $const3Q = $constraint3->eval(y1=>$sy1,y2=>$sy2);
+		my $const4Q = $constraint4->eval(y1=>$sy1,y2=>$sy2);
+		my $valueQ = ($sobj == $objfunction->eval(y1=>$sy1,y2=>$sy2) ); # check that the calculated objective value matches
+		unless ($const1Q and $const2Q and $const3Q and $const4Q) {
+			Value::Error("Your choices for y1 and y2 don't satisfy the constraints");
+		}
+		unless ($valueQ) {
+			Value::Error("Your calculation of the upper bound from y1 and y2 is incorrect");
+		}
+		return ($const1Q and $const2Q and $const3Q and $const4Q and $valueQ);
+	}
+);
+
+
+##############################################################
+#
+#  Text
+#
+#
+
+Context()->texStrings;
+BEGIN_TEXT
+
+This is the same as problem number 1 but this time the task is to find the dual LOP of the 
+problem. $PAR
+
+What task or requirement leads one to construct the dual problem?
+??????
+
+$PAR
+
+A manufacturer of kitchen cabinets is trying to maximize the weekly revenue of a factory.  Many orders 
+for bookcases, cabinets with drawers, cabinets with doors, and custom designed cabinets have been
+received by the manufacturer.  The material, labor and revenue for each of these products is given below.  
+
+$PAR
+  
+Suppose that $wood_total units of wood and $labor_total units of labor are available.  
+
+  $PAR
+  
+Write the DUAL of the  linear programming problem that solves this. 
+Let \(y_{1}, y_{2}\) be the multipliers for the constraint 
+on wood and the constraint on labor respectively. Write the constraints. 
+$PAR
+\{ANS($constraints->cmp), ans_box(5, 80)\}
+$PAR
+All of the \(x_i,y_j\) variables are non-negative.  You do not need to enter that.
+
+\[
+\begin{matrix}
+	& \text{Cabinet type} & \text{wood} & \text{labor} & \text{revenue} \\ 
+	x_{1}& \text{bookshelf} & $wood1 & $labor1       & $rev1 \\ 	 
+	x_{2}& \text{with doors} & $wood2 & $labor2      & $rev2 \\ 	 
+	x_{3}& \text{with drawers} & $wood3 &  $labor3 & $rev3 \\ 	 
+	x_{4}& \text{custom} & $wood4 & $labor4 & $rev4 \\  
+\end{matrix}
+\]
+
+Now the dual objective function is 
+$PAR
+\(w = \)\{ANS($objfunction->cmp), ans_rule(60)\}
+$PAR
+
+END_TEXT
+
+BEGIN_TEXT
+$PAR
+Explain how you  use the dual formulation you have just 
+constructed to give an estimate of the maximum amount of 
+revenue that the manufactorer could hope to achieve.  
+(It doesn't have to be a good estimate. :-) )
+$PAR
+\{ANS( essay_cmp() ), ans_box(5, 80)\}
+
+$PAR
+Give an upper estimate for the maximum revenue that one could expect from building cabinets and 
+the values for \(y1, y2\) which lead to that estimate.
+$PAR
+\(y1=\)\{$multianswer->ans_rule(2)\} \(y2=\)\{$multianswer->ans_rule(30)\} 
+$BR\(estimate=\) \{$multianswer->ans_rule(70)\} 
+
+END_TEXT
+Context()->normalStrings;
+ANS($multianswer->cmp);
+
+Context()->texStrings;
+
+BEGIN_SOLUTION
+Minimize
+\( w = 5000y_1 + 1500y_2 \)
+
+
+with constraints 
+
+\[
+\begin{aligned}
+100 &\le 10 y_1 + 2 y_2 \\
+150 & \le 12 y_1 + 4y_2 \\
+200 & \le 25 y_1 + 8 y_2 \\
+400 & \le 20 y_1 + 12 y_2\\
+y_1, y_2&\ge 0
+\end{aligned}
+\]
+
+$HR 
+
+If we chose any \(y_1\) and \(y_2\) which satisfy the constraints and calculate the 
+corresponding \(w\) then we have a value which is bigger than the revenue that the manufacturer can hope to make. 
+
+
+
+END_SOLUTION
+
+ENDDOCUMENT();        

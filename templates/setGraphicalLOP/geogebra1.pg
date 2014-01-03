@@ -1,0 +1,516 @@
+DOCUMENT();  
+loadMacros(
+"PGstandard.pl",
+"MathObjects.pl",
+"parserPopUp.pl",
+"MatrixReduce.pl",
+	"AppletObjects.pl",
+    "PGessaymacros.pl",
+    "compoundProblem5.pl",
+    "PGinfo.pl",
+	"PGcourse.pl",
+);
+TEXT(beginproblem());
+TEXT($BEGIN_ONE_COLUMN);
+$showPartialCorrectAnswers = 1;
+
+
+#Context('Fraction-NoDecimals');
+#Context()->parens->set("["=>{formMatrix=>1});
+Context("Matrix");
+#Context()->variables->add(y=>"Real");
+Context()->strings->add("Essay answer"=>{});
+#################################
+# Set up problem
+# Set parameters for a circle
+#################################
+($a0, $b0) = ( random(-5,5,1), random(-5,5,1) );
+$r0 = random(2,5,1);
+$top0 = $b0 + $r0;
+($a1, $b1) = ( random(-5,5,1), random(-5,5,1) );
+$r1 = random(2,5,1);
+$top1 = $b1 + $r1;
+$r2 = $r1**2;
+
+$objective_function = Compute("-x-2y");
+$objective_gradient = Compute("-1, -2");
+######################################
+# Create  link to applet:
+###################################
+# You can name your applet (anything reasonable :-) )
+# Adjust the height and width as desired
+# Paste the geogebra parameters in at the bottom of the page just above the 
+# command end command
+# so that they don't get in the way
+###################################
+
+
+$appletName = "ggbfoo";
+$applet =  GeogebraWebApplet(
+   code       => "geogebra.GeoGebraApplet",
+   archive    => "geogebra.jar",
+   codebase                 => findAppletCodebase("geogebra.jar"),                           
+   appletName              => $appletName,
+   appletId                    => $appletName,
+   submitActionAlias     => 'getAppletValues',  # default actionAlias
+   initializeActionAlias   => 'configure',  # default actionAlias
+   setStateAlias             => 'setXML',
+   getStateAlias             => 'getXML',
+   setConfigAlias           => '',
+   getConfigAlias           => '',
+   returnFieldName       => '',
+   width                 => 526,              # may want to modify width
+   height                => 552,              # may want to modify height 
+  # mayscript             => "true",
+   debugMode             => 0,   # set debugMode to 0 for no debug
+                                              # to 1 to make xml representation visible
+                                              # to 2 to add alerts detailing progression
+                                              # through the applet
+   onInit                         => 'ggbOnInit',
+   type                           => 'geogebraweb',
+   submitActionScript    => "",
+   selfLoading                => 1,
+   params     => GEOGEBRA_PARAMS(),# paste parameters in 
+ 
+);
+
+
+##################################
+# Setup GeogebraWebApplet -- 
+###################################
+
+HEADER_TEXT( MODES(TeX=>'', HTML=><<END_SCRIPT ) );
+<script language="javascript">
+function ggbOnInit(param) {
+   var applet = document.$appletName; 
+		if (param == "$appletName") {
+ 			applet_loaded(param,1);  // report that applet is ready. 
+ 			ww_applet_list[param].safe_applet_initialize(2);
+ 			ww_applet_list[param].object = param;
+ 			console.log("ggbOnInit: ww_applet_list["+param+"].object = ", ww_applet_list[param].object );
+ 		}
+
+}
+</script>
+END_SCRIPT
+
+HEADER_TEXT( MODES(TeX=>'', HTML=><<END_SCRIPT ) );
+
+<script language="javascript">
+function getAppletValues() {
+    console.log("getAppletValues() entered");
+	// get a handle for the applet object
+	var applet = $appletName;
+	var Ax = applet.getXcoord("A");
+	var Ay = applet.getYcoord("A");
+	var Bx = applet.getXcoord("B");
+	var By = applet.getYcoord("B");
+        return( Ax + ',' + Ay + ',' + Bx + ',' + By); 
+}
+ </script>
+END_SCRIPT
+
+#
+#  You manually define the answers
+#
+
+  
+@answers = ();
+$i = 1;
+# Section 1 (1,2,3)
+$answers[$i]= String("Essay answer");$i++;
+$answers[$i] = $objective_function;$i++;
+$answers[$i]= String("Essay answer");$i++;
+
+# Section 2 (4,5,6)
+$answers[$i]= String("Essay answer");$i++;
+$answers[$i] = Matrix([[-2,1,1,0,0,0,2],
+                       [-1,2,0,1,0,0,7],
+                       [1, 0,0,0,1,0,3],
+                       [-1,-2,0,0,0,-1,0]
+     ]);$i++;
+$answers[$i] = Matrix([[0,0,2,7,3,0]]);$i++;
+
+# Section 3 (7, 8, 9)
+$answers[$i]= String("Essay answer");$i++;
+$answers[$i] = Matrix([[-2,1,1,0,0,0,2],
+                       [ 3,0,-2,1,0,0,3],
+                       [1, 0,0,0,1,0,3],
+                       [-5, 0,2,0,0,-1,4]
+     ]);$i++;
+$answers[$i] = Matrix([0,2,0,3,3,-4]);$i++;
+
+# Section 4 (10,11,12)
+$answers[$i]= String("Essay answer");$i++;
+$answers[$i] = Matrix([[0, 1, -1/3, 2/3, 0, 0, 4],
+                       [ 1,0, -2/3,1/3,0,0,1],
+                       [0, 0, 2/3,-1/3,1,0,2],
+                       [0, 0,-4/3,5/3,0,-1,9]
+     ]);$i++;
+$answers[$i] = Matrix([1,4,0,0,2,-9]);$i++;
+
+# section 5 (13,14,15)
+$answers[$i] = Matrix([[0,1,0,1/2,1/2,0,5],
+                       [ 1,0,0,0,1,0,3],
+                       [0, 0,1,-1/2,3/2,0,3],
+                       [0,0,0,1,2,-1,13]
+     ]);$i++;
+$answers[$i] = Matrix([3,5,3,0,0,-13]);$i++;
+$answers[$i]= String("Essay answer");$i++;
+
+
+
+
+
+
+TEXT(  MODES(TeX=>'geogebraweb code', 
+                      HTML=> $applet->insertAll(
+                                debug =>0, 
+                                reinitialize_button => 1, 
+                                includeAnswerBox=>0,)
+ ) );
+#########################
+# start sections
+#########################
+$scaffold = Scaffold();
+
+##############################################
+#  section 1
+#
+###########################################
+#  Main text and answer evaluation section 1
+
+
+
+
+ 
+# notice the single quotes around canshow and iscorrect
+# these expressions will be evaluated at the end of the problem
+# in PROCESS_SECTIONS
+
+$options1 = {name=>"1. Set up algebraic equations from graph", 
+             canshow =>1, 
+             iscorrect =>$scaffold->requireCorrect(1,2,3),
+               # '($scores[1]==1 and $scores[2]==1 and $scores[3]==1 )', 
+             section=>1};
+Context()->texStrings;
+$scaffold->DISPLAY_SECTION($options1, <<'END_SECTION'); 
+
+Describe the feasible set (in white) above with 5 inequalities 
+(including  \(x\ge 0, y\ge 0 \)  )
+$PAR
+
+\{essay_box(7,80) \}
+
+$PAR
+You can't easily determine the objective function completely just by looking at the level lines but if 
+I tell you that the gradient of the objective function is \($objective_gradient\) then you can.
+$PAR
+The objective function is 
+\(z= \)\{$objective_function->ans_rule()\}
+$PAR
+If you know that the gradient is constant can you determine it's value by moving the level line? 
+How?
+\{essay_box(4,80) \} 
+$PAR
+
+\{$scaffold->SECTION_SOLUTION(<<'END_SOLUTION');
+\(
+ -x +    2y \le7,
+ -2x  +y \le2,
+  x\le3,
+x>=0,
+y>=0
+\)
+$PAR
+$HR
+$PAR
+You can determine the gradient by inspecting the value of the function on the level curve at various
+places.  You already know from the level curve that the slope is \(-1/2\) which tells you the ratio
+of the components of the vector.  Since the value is \(-4\) when \(x=4, y=0\) we see that the 
+gradient vector should be \($objective_gradient\).
+END_SOLUTION
+\}
+
+END_SECTION
+Context()->normalStrings;
+
+ANS( essay_cmp() , $answers[2]->cmp, essay_cmp() );
+# Section 1 (1,2,3)
+
+##########################################
+#  Main text and answer evaluation section 2
+ 
+
+Context()->texStrings;
+$scaffold->DISPLAY_SECTION({name=>"2. Set up matrix from inequalities", 
+             canshow =>$scaffold->requireCorrect(1,2,3),
+             iscorrect => $scaffold->requireCorrect(4,5,6),
+             section=>2 }, 
+             <<'END_SECTION'); 
+
+Write the inequalities in equality form using slack variables:
+\{essay_box(7,80) \} $PAR
+Write the coefficients in tableau (matrix) form. The first two columns will be the "parameters" 
+or "non-basic" variables. The next three columns will be the "slack" or "basic" variables. The next to 
+the last column will contain the coefficients of the objective function when written with all of the variables
+on one side of the equation. (The coeffient of \(z\) will be \( -1 \) ).  The final column will contain the 
+constants for the original inequalities and in the last row the constant \(0 \) for the objective function. 
+$PAR
+\{$answers[5]->ans_array\}
+$PAR
+The starting vector is   \{$answers[6]->ans_array\}. 
+$PAR
+The last entry is the value for \(z\) the output of the objective function.
+$PAR
+Notice that the slack variables multiply times column vectors which are independent -- in fact they are the standard
+vectors of a three dimensional space and form a basis.  This is why the slack variables are called basic variables (I think).
+In particular this means that the non-basic variables can be considered the free  variables and (because their three by three
+matrix is invertible) the basic variables are determined by the free variables.
+
+$PAR
+\{$scaffold->SECTION_SOLUTION( <<'END_SOLUTION');
+\(
+  -x +    2y +x3 =7,
+  -2x  +y +x4 = 2,
+   x +x5 =3,
+x>=0,
+y>=0
+\)
+$PAR
+$HR
+$PAR
+\[  
+\left[\begin{array}{rrrrr|r|r}
+-2&1&1&0&0&0&2\\
+-1&2&0&1&0&0&7\\
+1&0&0&0&1&0&3\\
+\hline
+-1&-2&0&0&0&-1&0\\
+\end{array}\right]
+\]
+
+The state vector is \( $answers[6] \)
+END_SOLUTION
+\}
+END_SECTION
+Context()->normalStrings;
+ANS(essay_cmp(),$answers[5]->cmp,$answers[6]->cmp);
+# Section 2 (4,5,6)
+
+##########################################
+#  Main text and answer evaluation section 3
+
+
+$options3 = {name=>"3. The first pivot", 
+             canshow =>'( $scores[4]==1 and $scores[5]==1 and $scores[6]==1 )', 
+             iscorrect => '($scores[7]==1 and $scores[8]==1 and $scores[9]==1 )', 
+             section=>3 };
+Context()->texStrings;
+$scaffold->DISPLAY_SECTION($options3, <<'END_SECTION'); 
+
+Increasing either \(x_1\) or \(x_2\) will decrease the objective function 
+but increasing \(x_2\) will decrease it faster.
+$PAR
+How much can \(x_2\) be increased? The new \(x_2\) is?
+Why can't it be increased further? Which constraint stops it? How can you determine this algebraically?
+$PAR \{essay_box(4,80) \}
+$PAR
+In the new position the slack variable \(x_3\) is now zero -- and we want to replace it with a new basis column,
+the one corresponding to \(x_2\) which we have just changed. We want to easily express \(x_2, x_4, x_5 \) in terms of 
+\(x_1, x_3\).  Looking at the matrix this will be most easily done if we change the second column so that it has a \(1\)
+in the top row and zeros in the rest of the column.  We do this using row operations because they won't change any of the solutions
+to the equations. This operation is called pivoting (in this case about position \( (1, 2)\) ) and should be familiar from 
+the row reduction procedures you did in MTH165. 
+$PAR
+It will help to write all the equations out in terms of the new free (non-basic) variables \(x_1, x_3\).
+$PAR
+For help from a computer in doing the arithmetic visit: $BBOLD
+\{htmlLink("http://mingus.la.asu.edu/~hurlbert/websim/tableau.html?title=A", "websim",'target="websim"')\} . $BR \{htmlLink("http://mingus.la.asu.edu/~hurlbert/websim/sim.html","Here are the instructions.", 'target = "instructions"')\} $EBOLD
+$PAR
+The new coefficient matrix is $PAR
+\{$answers[8]->ans_array\}
+$PAR
+and the new state vector is: $PAR   \{$answers[9]->ans_array\}
+$PAR
+
+Think about what determined the pivot column? What determined the pivot row?
+$PAR
+
+\{$scaffold->SECTION_SOLUTION( <<'END_SOLUTION');
+\(x_2\) can be increased to 1.  The first inequality is the one which stops it from Increasing
+further. If you look at the ratio of the coefficients in the second column to those in the last column
+that shows you (relatively) how much \(x_2\) can be increased. Infinite and negative ratios can be ignored.
+(Write this out in equations and check that it gives the right answer.)
+$PAR
+$HR
+$PAR
+\[
+\left[\begin{array}{rrrrr|r|r}
+-2&1&1&0&0&0&2\\
+3&0&-2&1&0&0&3\\
+1&0&0&0&1&0&3\\
+\hline
+-5&0&2&0&0&-1&4\\
+\end{array}\right]
+\]
+
+The state vector is \( $answers[9]\)
+END_SOLUTION
+\}
+END_SECTION
+Context()->normalStrings;
+ANS(essay_cmp(), $answers[8]->cmp, $answers[9]->cmp);
+# Section 3 (7, 8, 9)
+##########################################
+#  Main text and answer evaluation section 4
+ 
+$options4 = {name=>"4. Another pivot", 
+            canshow =>'($scores[7]==1 and $scores[8]==1 and $scores[9]==1  )', 
+            iscorrect => '($scores[10]==1 and $scores[11]==1 and $scores[12]==1 )',
+            section=>4 };
+Context()->texStrings;
+$scaffold->DISPLAY_SECTION($options4, <<'END_SECTION'); 
+
+Describe which variable you are going to change next and why. $PAR
+\{ essay_box(5,80) \}
+
+After moving and pivoting the new matrix is:$PAR
+\{$answers[11]->ans_array\}
+and the new state vector is: $PAR
+\{$answers[12]->ans_array\}
+$PAR
+(Normalize the matrix so that the pivot entries are 1 in order to get WeBWorK to accept the answer 
+for now.  We'll make WeBWorK smarter later on -- once we get the current version
+of this problem working correctly. )
+$PAR
+
+\{$scaffold->SECTION_SOLUTION(<<'END_SOLUTION');
+We'll change \(x_1\) since the only negative coefficient for \(z\) is \(-5\).
+The limiting occurs in row 3 so we will pivot so that row 2, column 1 is a 1.
+$PAR
+$HR
+$PAR
+\[
+\left[\begin{array}{rrrrr|r|r}
+0&1&-1/3&2/3&0&0&4\\
+1&0&-2/3&1/3&0&0&1\\
+0&0&2/3&-1/3&1&0&2\\
+\hline
+0&0&-4/3&5/3&0&-1&9\\
+\end{array}\right]
+\]
+$PAR
+The new state vector is \($answers[12]\)
+
+END_SOLUTION
+\}
+END_SECTION
+Context()->normalStrings;
+
+ANS(essay_cmp(), $answers[11]->cmp, $answers[12]->cmp);
+# Section 4 (10,11,12)
+##########################################
+#  Main text and answer evaluation section 5
+
+$options5 = {name=>"5. Final pivot", 
+            canshow =>'($scores[10]==1 and $scores[11]==1 and $scores[12]==1 )', 
+            iscorrect => '($scores[13]==1 and $scores[14]==1 and $scores[12]==1 )',
+            section=>5 };
+Context()->texStrings;
+$scaffold->DISPLAY_SECTION($options5, <<'END_SECTION'); 
+Perform the final move. 
+
+After moving and pivoting the new matrix is:$PAR
+\{$answers[13]->ans_array\}
+and the new state vector is: $PAR
+\{$answers[14]->ans_array\}
+
+How can you tell that you are done and have reached a minimum?
+$PAR
+\{essay_box\}
+
+$PAR
+\{$scaffold->SECTION_SOLUTION(<<'END_SOLUTION');
+
+You can determine the gradient by inspecting the value of the function on the level curve at various
+places.  You already know from the level curve that the slope is \(-1/2\) which tells you the ratio
+of the components of the vector.  Since the value is \(-4\) when \(x=4, y=0\) we see that the 
+gradient vector should be \($objective_gradient\).
+\[
+\left[\begin{array}{rrrrr|r|r}
+0&1&0&1/2&1/2&0&5\\
+1&0&0&0&1&0&3\\
+0&0&1&-1/2&3/2&0&3\\
+\hline
+5&3&5&0&0&-1&13\\
+\end{array}\right]
+\]
+$PAR 
+The state vector is \($answers[14]\)
+$PAR
+$HR
+$PAR
+We are at a minimum because all of the coefficients of the basic and non-basic variables are 
+positive.  In particular increasing \(x_4\) or \(x_5\) away from zero would increase \(z\)
+not decrease it.
+END_SOLUTION
+\}
+END_SECTION
+Context()->normalStrings;
+ANS( $answers[13]->cmp, $answers[14]->cmp, essay_cmp());
+# section 5 (13,14,15)
+
+# autograde answers 
+
+@ans_eval = ();
+@scores = ();
+foreach my $i (1..$#answers) {
+  $ans_eval[$i] = $answers[$i] ->cmp();
+  $ans_hash[$i] = $ans_eval[$i]->evaluate($inputs_ref->{ANS_NUM_TO_NAME($i)});
+  $scores[$i]   = $ans_hash[$i]->{score};
+}
+#section 1 (1,2,3)
+$scores[1]=1;   #essay answer always passes.
+$scores[3]=1;   #essay answer always passes.
+#section 2 (4,5,6)
+$scores[4]=1;   #essay answer always passes.
+#section 3 (7,8,9)
+$scores[7]=1;   #essay answer always passes.
+#section 4 (10,11,12)
+$scores[10]=1;   #essay answer always passes.
+#section 5 (13, 14, 15)
+$scores[15]=1;  #essay answer always passes.
+
+# process sections doing delayed evaluation of scores
+
+$last_correct_section = $scaffold->PROCESS_SECTIONS();
+$opensection = $last_correct_section + 1;
+#END_SECTIONS($last_correct_section+1);
+$scaffold->openSections($opensection);
+TEXT($END_ONE_COLUMN);
+  # currently open section -- use 0 for all closed
+
+
+
+
+sub GEOGEBRA_PARAMS {
+    my $result = {
+showResetIcon=>"false" ,
+enableRightClick=>"false" ,
+enableLabelDrags=>"false", 
+showMenuBar=>"false" ,
+showToolBar=>"false", 
+showAlgebraInput=>"false", 
+useBrowserForJS=>"false", 
+allowRescaling =>"true",
+ggbbase64=>"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"
+	
+};
+
+$result;
+}
+
+
+
+ENDDOCUMENT();

@@ -1,0 +1,234 @@
+##DESCRIPTION
+##  Linear programming problem
+##ENDDESCRIPTION
+
+##KEYWORDS('algebra', 'inequality', 'fraction')
+
+## DBsubject('Linear optimization')
+## DBchapter('')
+## DBsection('')
+## Date('9/11/2013')
+## Author('M. Gage')
+## Institution('U. of Rochester')
+## TitleText1('')
+## EditionText1('')
+## AuthorText1('')
+## Section1('')
+## Problem1('')
+
+########################################################################
+
+DOCUMENT();      
+
+loadMacros(
+   "PGstandard.pl",     # Standard macros for PG language
+   "MathObjects.pl",
+   "PGessaymacros.pl",
+   "parserLinearInequality.pl",
+   "parserPopUp.pl",
+   "source.pl",        # allows code to be displayed on certain sites.
+   "PGcourse.pl",      # Customization file for the course
+);
+
+# Print problem number and point value (weight) for the problem
+TEXT(beginproblem());
+
+# Show which answers are correct and which ones are incorrect
+$showPartialCorrectAnswers = 1;
+
+##############################################################
+#
+#  Setup
+#
+#
+Context("LinearInequality");
+
+Context()->variables->are(p1=>'Real',p2=>'Real',p3=>'Real',p4=>'Real',p5=>'Real',T=>'Real');
+Context()->variables->add(q1=>'Real',q2=>'Real',q3=>'Real',q4=>'Real',q5=>'Real');
+Context()->variables->add(r1=>'Real',r2=>'Real',r3=>'Real',r4=>'Real',r5=>'Real');
+
+# $info1 is avg time it takes employee 1 to handle an information call
+($info1, $info2, $info3, $info4, $info5) = qw(10 15 13 19 17);
+($policy1,$policy2,$policy3, $policy4, $policy5) = qw(28 22 18 25 23);
+($claim1, $claim2, $claim3, $claim4, $claim5) = qw(21 32 25 39 23);
+
+#objective function
+$popup = PopUp([qw(? Maximize Minimize)], 'Minimize');
+$objfunction =  Compute("T +0p1 +0q1 +0r1") ;
+
+#constraints  -- T is the maximum of the times taken by each worker to complete their tasks.
+
+$constraint1 = Compute("${info1}p1 + ${policy1}q1 + ${claim1}r1 <= T");
+$constraint2 = Compute("${info2}p2 + ${policy2}q2 + ${claim2}r2 <= T");
+$constraint3 = Compute("${info3}p3 + ${policy3}q3 + ${claim3}r3 <= T");
+$constraint4 = Compute("${info4}p4 + ${policy4}q4 + ${claim4}r4 <= T");
+$constraint5 = Compute("${info5}p5 + ${policy5}q5 + ${claim5}r5 <= T");
+$constraint6 = Compute("p1+p2+p3+p4+p5=1");
+$constraint7 = Compute("q1+q2+q3+q4+q5=1");
+$constraint8 = Compute("r1+r2+r3+r4+r5=1");
+$constraints = List($constraint1, $constraint2, $constraint3, $constraint4, $constraint5, $constraint6, 
+                    $constraint7, $constraint8);
+
+# additional questions
+$workerpopup = PopUp([qw(? 1 2 3 4 5)], 3);
+$taskpopup = PopUp([qw(? Information Policy Claims)], 'Information');
+##############################################################
+#
+#  Text
+#
+#
+
+Context()->texStrings;
+BEGIN_TEXT
+
+An insurance company wants to minimize the overall elapsed time that 
+it takes to handle a number of tasks 
+by appropriately assigning a fraction of 
+each type of task to each worker.   
+$PAR
+Let \(p_i\) be the fraction of information calls assigned to 
+worker \(i\), \(q_i\) the fraction of new policy calls, 
+and \(r_i\) the fraction of claims.
+$BR
+Let \(T\) represent the  elapsed time (on average) until 
+all of the employees have completed all of their assigned tasks.
+$BR
+The average time (in minutes) that it takes each of the five 
+employees to complete each type of task is given in the table below.
+$PAR
+Our project is to construct linear programming problem that solves this. 
+$BR
+Write the objective function for maximizing revenue using variables p1,p2, ..q1, ... r1 ..., T.
+
+$PAR\{ANS($popup->cmp), $popup->menu\}Average ElapsedTime: \(w = \)
+\{ANS($objfunction->cmp), ans_box(2,60)\}$PAR
+
+Now write the constraints for the mathematical linear 
+optimization problem (LOP) in standard form.  Separate each
+of the constraint equations by a comma. The order of the constraint equations does not matter.
+$PAR
+\{ANS($constraints->cmp), ans_box(9, 80)\}$BR 
+the variables are non-negative: \(p_{i},q_{i},r_{i},T\ge 0\). You don't need to include this.
+$PAR
+
+\[
+\begin{matrix}
+	\text{Employee} & \text{Information} & \text{Policy} & \text{Claim} \\ 
+	1& $info1 & $policy1 & $claim1 \\ 
+	2& $info2 & $policy2 & $claim2 \\ 
+	3& $info3 & $policy3 & $claim3 \\ 
+	4& $info4 & $policy4 & $claim4 \\ 
+	5& $info5 & $policy5 & $claim5 \\ 
+\end{matrix}
+\]
+$PAR
+Optimum time = \{ANS(Real(11.4014)->cmp), ans_rule() \}
+\{  htmlLink("http://www.phpsimplex.com/simplex/simplex.htm?l=en", "Link to simplex tool",'target="_simplex"') \}
+$PAR $BITALIC For this webwork question you can use the "direct method" provided by this 
+simplex tool to just get the answer, or you can step 
+through the simplex method to see how it works. $PAR Look at the top level of this site 
+http://www.phpsimplex.com/en for more resources on linear programming.
+$EITALIC$PAR
+
+END_TEXT
+Context()->texStrings;
+BEGIN_SOLUTION
+Minimize
+\(w = T\)
+$PAR
+with constraints 
+
+$PAR
+\[\begin{aligned}
+$constraint1&\\
+$constraint2&\\
+$constraint3&\\
+$constraint4&\\
+$constraint5&\\
+$constraint6&\\
+$constraint7&\\
+$constraint8&\\
+p_i,q_i,r_i \ge 0&
+\end{aligned}\]
+$PAR
+Optimal Solution: w = 11.4014; T = 11.4014 $BR 
+p1 = 1, p2 = 0, p3 = 0, p4 = 0, p5 = 0 $BR
+q1 = 0, q2 = 0.518246, q3 = 0.0256983, q4 = 0.456056, q5 = 0 $BR
+r1 = 0.0667335, r2 = 0, r3 = 0.437553, r4 = 0, r5 = 0.495713 $BR
+END_SOLUTION
+Context()->normalStrings;
+# some additional thought questions.
+Context()->texStrings;
+BEGIN_TEXT
+$PAR
+Which job is done only by one person?   \{ANS($taskpopup->cmp),$taskpopup->menu\}. Why?
+$PAR
+\{ANS(essay_cmp()), ans_box(3,80) \}
+$PAR
+How many people do only one job? \{ANS($workerpopup->cmp),$workerpopup->menu\}. 
+Could this be predicted?
+
+\{ANS(essay_cmp()), ans_box(3,80) \}
+END_TEXT
+
+BEGIN_HINT
+How many non-zero values are there in the answer? How many constraints are there?
+How many basic variables  are there for a linear programming problem like this?
+Basic variables usually have non-zero values.
+END_HINT
+Context()->normalStrings;
+
+
+Context()->texStrings;
+BEGIN_SOLUTION
+$PAR
+Information calls are entirely handled by employee1. 
+Employee1 is faster at handling information calls than at anything 
+else and she is faster at information calls than anyone else.  
+Switching her to another task (when there are still information 
+calls available) would lengthen her total work time.  
+Apparently she has time left over since she also works on claims, 
+so there is no need for anyone else to work on handling info calls.
+$PAR
+3 workers do only one job and two more do only 2.  To some extent this can 
+be predicted. The general theory predicts that there will be at most 8 non-zero
+parameters (the same number as the number of constraints). Since \(T\) will not
+be zero a little counting reveals that distributing the remaining 7 non-zero variables
+among the 15 percentage values will leave at least two people working one or no jobs.
+$PAR
+The general theory that optimum solutions
+(usually) occur at corners (also called basic solutions) would (usually) require that the 8 basic
+variables in the optimum solution would be non-zero and all of the others would be zero. 
+The slack variables in the constraints would be zero and non-basic 
+since otherwise a slight shift in assignment would reduce the total time. 
+Hence there are 8 basic (usually non-zero) values for the original non-slack parameters. 
+$PAR
+A little counting reveals that there at most 8 basic (and non-zero) parameters
+are at least 8 zero values among the 15 percentages and 
+that therefore at least two people would work one job or none. 
+$PAR
+The reasoning above is along the lines of "given three equations in three unknowns there is a unique 
+solution". This is usually true and a good rule of thumb but one can find examples where 
+this statement is false.  The rank-nullity theorem of linear algebra gives a precise explanation.
+Something similar occurs here.  A little theory (and/or a lot of experience) can predict some aspects
+of an outcome even before the calculations are made.
+$PAR
+If there were more tasks is it more or less likely that each worker would do only one job?
+Does this give any insight into workplace conditions? Is it more less likely that a job would
+be performed by more than one worker?
+$PAR
+  
+END_SOLUTION
+Context()->normalStrings;
+# Minimize  w = T +0p1+0p2+0p3 +0p4+0p5 +0r1+0r2+0r3+0r4+0r5 +0q1+0q2+0q3+0q4+0q5 subject to
+
+# p1 +p2 +p3 +p4 + p5 =1
+# q1 +q2 +q3 +q4 + q5 =1
+# r1 +r2 +r3 +r4 + r5 =1
+# 10p1 +28q1 +21r1 -t <= 0 
+# 15p2 +22q2 +32r2 -t <= 0
+# 13p3 +18q3 +25r3 -t <= 0 
+# 19p4 +25q4 +39r4 -t <= 0 
+# 17p5 +23q5 +23r5 -t <= 0
+
+ENDDOCUMENT();        
