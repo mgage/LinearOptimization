@@ -5,11 +5,12 @@ loadMacros(
 "parserPopUp.pl",
 "unionLists.pl",
 "MatrixReduce.pl",
-"AppletObjects.pl",
+#"AppletObjects.pl",
 "PGessaymacros.pl",
 "PGmatrixmacros.pl",
 "LinearProgramming.pl",
-"compoundProblem4.pl",
+"parserLinearInequality.pl",
+"compoundProblem5.pl",
 "PGinfo.pl",
 "PGcourse.pl",
 );
@@ -28,12 +29,23 @@ Context()->strings->add("Essay Answer" =>{});
 #
 
 #################################################################
-# Initialize answer array for automatic grading
+# Initialize sections
 #################################################################
-@answers = ();
-$i=1;
+#BOILERPLATE
+$scaffold = Scaffold();
 
 
+#this creates syntactic sugar subroutines 
+# Pass in the string name of the Scaffold e.g.  INITIALIZE_SCAFFOLD('$scaffold');
+#
+INITIALIZE_SCAFFOLD('$scaffold');
+
+# $isInstructor allows instructors to open sections at will 
+# if you use constructions such as 
+#       canshow =>$scaffold->requireCorrect(1). " or $isInstructor",
+# This is particularly convenient while writing and debugging the problem.
+$isInstructor =  ($envir{effectivePermissionLevel} >= $envir{ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL});
+$isInstructor=0;
 ##############################################################
 #
 #  Setup
@@ -53,10 +65,6 @@ $steve_money_commitment = 4000;
 $steve_time_commitment  = 500;
 $steve_profit = 4500;
 #listVariables();
-$isInstructor = ($envir{effectivePermissionLevel} >= $envir{ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL});
-DEBUG_MESSAGE("effective permission= ".($envir{effectivePermissionLevel}),
-     "show solution level ". ($envir{ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL}) );
-DEBUG_MESSAGE("is instructor = ".$isInstructor);
 BEGIN_TEXT
 \{BeginList("OL")\}
 $ITEM Set up problem
@@ -77,18 +85,18 @@ END_TEXT
 # start sections
 #########################
 
-$scaffold = Scaffold();
+
+
 
 #########################################################################################################
 #  Section 1
 #  section 1 (1essay)
 #########################################################################################################
 
-$answers[$i]=String("Essay answer"); $i++;
 Context()->texStrings;
-$scaffold->DISPLAY_SECTION(  {  name=>"1: Set up problem", 
+DISPLAY_SECTION(  {  name=>"1: Set up problem", 
              canshow =>1,
-             iscorrect=>'($scores[1]==1)', 
+             iscorrect=>$scaffold->requireCorrect(1), 
              section=>1
 } , <<'END_SECTION'); 
 $PAR  $HR $PAR 1.$PAR
@@ -114,12 +122,12 @@ one or both friends' ventures in whichever combination would maximize your total
 $PAR
 Write a linear program to help you determine the correct fractions. 
  
-\{  ANS(essay_cmp()), essay_box(10,80) \}
+\{  SECTION_ANS(essay_cmp()), essay_box(10,80) \}
 $PAR
 
+END_SECTION
 
-\{
-$scaffold->SECTION_SOLUTION(<<'END_SOLUTION');
+SECTION_SOLUTION({section=>1},<<'END_SOLUTION');
 $PAR
 \(p_1\) is the fraction to invest in Bill's venture.
 \(p_2 = \) fraction of Steve's venture to invest in. 
@@ -138,9 +146,6 @@ to happen automatically.  Can you think of a change in the values of the problem
 that would make this important?
 
 END_SOLUTION
-\}
-END_SECTION
-
 Context()->normalStrings;
 
 
@@ -154,16 +159,16 @@ $matrix1 = Matrix([
 [$bill_profit, $steve_profit, 0, 0, -1, 0]
 ]);
 
-$tableau1 = $matrix1->wwMatrix->array_ref;
+$tableau1 = $matrix1->wwMatrix->array_ref; # translate to the array reference
 $tableau1_string = lp_display_mm($tableau1);
 #########################################################################################################
 # section 2  answers (2matrix )
 #########################################################################################################
-$answers[$i]=$matrix1;$i++; # record answers
+
 Context()->texStrings;
-$scaffold->DISPLAY_SECTION( { name=>"2: Write tableau", 
-             canshow =>'($scores[1]==1)||$isInstructor',
-             iscorrect=>'($scores[2]==1)', 
+DISPLAY_SECTION( { name=>"2: Write tableau", 
+             canshow =>$scaffold->requireCorrect(1). " or $isInstructor",
+             iscorrect=>$scaffold->requireCorrect(2), 
              section=>2
 },   <<'END_SECTION'); 
 
@@ -174,18 +179,15 @@ front of the profit \(P\) is \(-1\).
 $PAR
 \(\qquad p_1, \qquad p_2, \qquad\qquad x_3,\qquad\qquad x_4, \qquad -P,\qquad b \)
 $BR 
-\{ANS($matrix1->cmp()), $matrix1->ans_array\}
+\{SECTION_ANS($matrix1->cmp()), $matrix1->ans_array\}
 $PAR
 
+END_SECTION
 
-
-\{ $scaffold->SECTION_SOLUTION(<<'END_SOLUTION');
+SECTION_SOLUTION({section=>2},<<'END_SOLUTION');
 \[   $tableau1_string \]
 
 END_SOLUTION
-\}
-
-END_SECTION
 Context()->normalStrings;
 
 #########################################################################################################
@@ -193,21 +195,12 @@ Context()->normalStrings;
 #########################################################################################################
 $pivot1= Point("(1,1)");
 $state1 = Matrix([0,0,6000,600,0]);
-#$matrix2=Matrix([
-#[5000,4000,1,0,0,6000],
-#[0,900000,-400,5000,0,600000],
-#[0,4500000,-4500,0,-5000,-270000],
-#]);
 $tableau2 =lp_clone($tableau1);
 lp_pivot($tableau2, 0,0);  # watch out for  these zero based vs. one based pivot notations
+# lp_pivot works in place.
 $matrix2 =  5000*Matrix($tableau2);
 $state2 = Compute("[6000/5000,0,0,600000/5000,-27000000/(-5000)]");
 $pivot2= Point("(2,2)");
-#$matrix3=180 * Matrix([
-#[900000,0,500,-4000,0,600000],
-#[0,900000,-400,5000,0,600000],
-#[0,0,-450000,-450000,-900000,-5400000000],
-#]);
 $tableau3 = lp_clone($tableau2);
 lp_pivot($tableau3, 1,1);
 $matrix3 = 900000*Matrix($tableau3);
@@ -217,60 +210,56 @@ $profit = Compute("6000");
 #########################################################################################################
 # section 3 answers (3,4,5,6,7,8, 9, 10)
 #########################################################################################################
-$answers[$i]=$state1; $i++; #3
-$answers[$i]=$pivot1; $i++;
-$answers[$i]=$matrix2; $i++;
-$answers[$i]=$state2; $i++;
-$answers[$i]=$pivot2; $i++;
-$answers[$i]=$matrix3; $i++;
-$answers[$i]=$state3; $i++;
-$answers[$i]=$profit; $i++; #10
 Context()->texStrings;
-$scaffold->DISPLAY_SECTION(
+DISPLAY_SECTION(
 {	name=>"3: Solve using simplex method", 
-    canshow =>'($scores[2]==1)||$isInstructor',
-    iscorrect=>'($scores[3]==1 and $scores[4]==1 and $scores[5]==1 and $scores[6]==1 
-    and $scores[7]==1 and $scores[8]==1 and $scores[9]==1 and $scores[10]==1)', 
+    canshow =>$scaffold->requireCorrect(2). " or $isInstructor",
+    iscorrect=>$scaffold->requireCorrect(3,4,5,6,7,8,9,10), 
     section=>3
 },   <<'END_SECTION'); 
-
 
 Using the convention that one removes the "first" nonbasic column that will increase profits
 (the convention that Hurlbert uses) find the first pivot location. (e.g. (2,3) for line 2, column 3).
 and perform the pivot operation.  (You can use 
 \{htmlLink("http://mingus.la.asu.edu/~hurlbert/websim/tableau.html?title=A","websim")\} to do the calculation.     );
 $PAR
-Initial vector (values): \{ANS($state1->cmp),$state1->ans_array\} $PAR
+Initial vector (values): \{SECTION_ANS($state1->cmp),$state1->ans_array\} $PAR
 
-Pivot entry: use parentheses as in (row, column): \{ANS($pivot1->cmp),$pivot1->ans_rule \}.
+Pivot entry: use parentheses as in (row, column): \{SECTION_ANS($pivot1->cmp),$pivot1->ans_rule \}.
 $PAR
 The matrix has been multiplied by a constant so that all values are integers. This is
 the same result as you will obtain using websim.
 $PAR  
 \(\qquad p_1, \qquad\qquad p_2, \qquad\qquad x_3,\qquad\qquad x_4, \qquad\qquad -P,\qquad b \)
 $BR 
-\{ANS($matrix2->cmp()), $matrix2->ans_array(8)\}
+\{SECTION_ANS($matrix2->cmp()), $matrix2->ans_array(8)\}
 
 $PAR
-Current vector (values): \{ANS($state2->cmp),$state2->ans_array(10)\} $PAR
+Current vector (values): \{SECTION_ANS($state2->cmp),$state2->ans_array(10)\} $PAR
 $HR
-Next pivot entry: \{ANS($pivot2->cmp),$pivot2->ans_rule \}.
+Next pivot entry: \{SECTION_ANS($pivot2->cmp),$pivot2->ans_rule \}.
 
 $PAR  
 \(\qquad p_1, \qquad\qquad p_2, \qquad\qquad x_3,\qquad\qquad x_4, \qquad\qquad -P,\qquad b \)
 $BR 
-\{ANS($matrix3->cmp()), $matrix3->ans_array(10)\}
+\{SECTION_ANS($matrix3->cmp()), $matrix3->ans_array(10)\}
 
-Your final vector \{ANS($state3->cmp),$state3->ans_array\} $PAR
+Your final vector \{SECTION_ANS($state3->cmp),$state3->ans_array\} $PAR
 (Make sure you are getting all the zeros in the answer! The numbers are quite large
 and overflow the blanks. -- you can make the table blanks wider
 in websim by right clicking on upper left corner of a table. )
-Your expected profit: $DOLLAR\{ANS($profit->cmp),$profit->ans_rule\}
+Your expected profit: $DOLLAR\{SECTION_ANS($profit->cmp),$profit->ans_rule\}
 
 $PAR
-\{$scaffold->SECTION_SOLUTION(<<'END_SOLUTION');
+
+END_SECTION
+
+SECTION_SOLUTION({section=>3},<<'END_SOLUTION');
 Your first pivot should be on \($pivot1\) since that is the left most column that
 will increase the profit and the first row has the most limiting ratio.
+$PAR
+\( \{lp_display_mm( [$matrix2->value] )\} \) $PAR
+next \($matrix2\)
 $PAR
 The next pivot should be \($pivot2\) since increasing the variable for the second column 
 will increase the profit and the smaller ratio is the second row. However I also notice
@@ -278,27 +267,26 @@ that maybe we should have included upper limits on \(p_1\) and \(p_2\) since thi
 "feasible basic solution" has their values greater than 1.  Fortunately the final value
 is a fraction less than 1 so I guess I lucked out.
 $PAR
+ \( \{lp_display_mm([$matrix3->value], top_labels=>[qw(x_1 x_2 x_3 x_4 obj b)] )\}
+ \{side_labels(  qw(\text{cash} \text{hours} \text{profits} ) ) \} \)
 $PAR 
 At this point you are done since changing any of the non basic variables will only 
 decrease the profit.
 END_SOLUTION
-\}
-END_SECTION
-Context()->texStrings;
+Context()->normalStrings;
 #########################################################################################################
 # Section 4
 #########################################################################################################
 
-@wwM = qw( $matrix1->wwMatrix()) ;
-$rf_array = [[2,4,5],[2,1,3] ];
+
 #########################################################################################################
 # Section 4 answers (11essay)
 #########################################################################################################
-$answers[$i]= String("Essay answer");$i++;
+Context()->texStrings;
 $scaffold ->DISPLAY_SECTION(
 {	name=>"4: Create dual problem", 
-    canshow =>'($scores[3]==1 and $scores[4]==1 and $scores[5]==1 and $scores[6]==1 and $scores[7]==1 and $scores[8]==1) ||$isInstructor',
-    iscorrect=>'($scores[11]==1)', 
+    canshow =>$scaffold->requireCorrect(3,4,5,6,7,8,9,10)." or $isInstructor", #$scaffold->requireCorrect(3,4,5,6,7,8,9),
+    iscorrect=>$scaffold->requireCorrect(11),
     section=>4
 },   <<'END_SECTION'); 
 
@@ -309,12 +297,14 @@ becomes a new LOP -- the dual problem.  Use variables \(y_1\) and \(y_2\) to cre
 of the constraints and create a linear function \(w = Ay_1 + By_2\) which guarantees that \(w\) will
 be larger than any profit one could make. What constraints must \(y_1\) and \(y_2\) satisfy?
 $PAR
-\{  ANS(essay_cmp()), essay_box(10,80) \}
+\{  SECTION_ANS(essay_cmp()), essay_box(10,80) \}
 $PAR
 
 
 
-\{ $scaffold->SECTION_SOLUTION(<<'END_SOLUTION');
+END_SECTION
+
+SECTION_SOLUTION({section=>4},<<'END_SOLUTION');
 The profit is less than the minimum of \( w = 6000y_1 +600y_2 \) subject to
 
 \[\begin{aligned}
@@ -326,8 +316,7 @@ The \(y_i\) are the coefficients used to add up the constraint inequalities of t
 so as to estimate an upper bound for the profit.
 
 END_SOLUTION
-\}
-END_SECTION
+Context()->normalStrings;
 #########################################################################################################
 #  Begin section 5 -- create dual tableau
 # section  5 (12matrix, 13, 14essay)
@@ -343,14 +332,11 @@ $popup = PopUp(["?","Yes", "No"], "No");
 #########################################################################################################
 # Section 5 answers (12matrix, 13, 14essay)
 #########################################################################################################
-$answers[$i]= $dualmatrix1; $i++;
-$answers[$i]= $popup; $i++;
-$answers[$i]=String("Essay answer"); $i++;
 Context()->texStrings;
-$scaffold->DISPLAY_SECTION(
+DISPLAY_SECTION(
 {	name=>"5: Write tableau for dual problem", 
-    canshow =>'($scores[11]==1)||$isInstructor',
-    iscorrect=>'($scores[12]==1 and $scores[13]==1 and $scores[14]==1)', 
+    canshow =>$scaffold->requireCorrect(11)." or $isInstructor",
+    iscorrect=>$scaffold->requireCorrect(12,13), 
     section=>5
 },   <<'END_SECTION'); 
 
@@ -364,19 +350,22 @@ the coefficient of \(v\) will be \(-1\).
 
 $PAR
 \(\qquad  y_1\qquad\qquad y_2, \qquad\qquad y_3,\qquad\qquad y_4, \qquad  -v,\qquad b \)
-\{ANS($dualmatrix1->cmp()), $dualmatrix1->ans_array \}
+\{SECTION_ANS($dualmatrix1->cmp()), $dualmatrix1->ans_array \}
 (This tableau is for maximizing \(-w\) -- there are two minus sign switches. )
 $PAR 
 Is there a natural feasible solution to this problem? In other words does setting the 
 problem parameters equal to 0 provide a feasible solution?
-\{ANS($popup->cmp),$popup->menu \} 
+\{SECTION_ANS($popup->cmp),$popup->menu \} 
 $PAR
 Explain why or why not and what are your options for getting started.
-\{  ANS(essay_cmp()), essay_box(10,80) \}
+\{  SECTION_ANS(essay_cmp()), essay_box(10,80) \}
 
 
 $PAR
-\{$scaffold->SECTION_SOLUTION(<<'END_SOLUTION');
+
+END_SECTION
+
+SECTION_SOLUTION({section=>5},<<'END_SOLUTION');
 \[  $dualtableau1_string  \]
 $PAR
 Setting the parameters \(y_1, y_2\) to zero is not a feasible solution. 
@@ -385,8 +374,6 @@ for a problem this small), using prior knowledge (e.g. a known optimal solution 
 a similar problem), creating an auxiliary problem to find a feasible point,
 and the "shortcut method" which is an accelerated version of the "auxiliary method". 
 END_SOLUTION
-\}
-END_SECTION
 Context()->normalStrings;
 #########################################################################################################
 # Begin section 6 -- solve the tableau using  simplex method
@@ -395,21 +382,17 @@ Context()->normalStrings;
 # We'll use the auxiliary method -- adding an extra slack variable.
 #########################################################################################################
 
-
 $dualtableau2 = [[-1,-5000,-400, 1, 0, 0,0,-4500], [-1,-4000, -500, 0, 1, 0,0,-4500],[-1,0,0,0,0,0,-1,0],[0,-6000,-600,0,0,-1,0,0]];
 $dualmatrix2 = Matrix($dualtableau2);
 $dualtableau2_string =  lp_display_mm($dualtableau2);
 #########################################################################################################
 # section 6 answers (15essay 16matrix)
 #########################################################################################################
-$answers[$i]=String("Essay Answer"); $i++;
-$answers[$i]=$dualmatrix2; $i++;
-
 Context()->texStrings;
-$scaffold->DISPLAY_SECTION(
+DISPLAY_SECTION(
 {	name=>"6. Set up LOP for auxiliary method to find feasible solution", 
-    canshow =>'($scores[12]==1 and $scores[13]==1 and $scores[14]==1)||$isInstructor',
-    iscorrect=>'($scores[15]==1 and $scores[16]==1 )', 
+    canshow =>$scaffold->requireCorrect(12,13)." or $isInstructor",
+    iscorrect=>$scaffold->requireCorrect(16), 
     section=>6
 },   <<'END_SECTION'); 
 
@@ -419,18 +402,20 @@ the first feasible point.  Write both the new objective function and
 the new constraints. We will continue to use the convention that we are maximizing
 the auxiliary function so there will be some minus signs that need to be taken into account.
 We'll let \(z = -y_0\) and try to maximize \(z\). $PAR
-\{  ANS(essay_cmp()), essay_box(10,80) \}
+\{  SECTION_ANS(essay_cmp()), essay_box(10,80) \}
 $PAR
 Add a first column for the extra slack variable and a next to the last row 
 for the new objective function and write the new tableau.
 $PAR
 \(\qquad y_0, \qquad\qquad  y_1\qquad\qquad y_2, \qquad\qquad y_3,\qquad\qquad y_4, \qquad -v \qquad\qquad -z,\qquad b \)
-\{ANS($dualmatrix2->cmp()), $dualmatrix2->ans_array \}
+\{SECTION_ANS($dualmatrix2->cmp()), $dualmatrix2->ans_array \}
 
 $PAR
 
 
-\{$scaffold->SECTION_SOLUTION(<<'END_SOLUTION');
+END_SECTION
+
+SECTION_SOLUTION({section=>6},<<'END_SOLUTION');
 
 New objective: Maximize \(z = -y_0 \) subject to 
 \[\begin{aligned}
@@ -445,9 +430,6 @@ If \(y_0\) is large enough this always has a feasible solution with
 \[  $dualtableau2_string  \]
 $PAR
 END_SOLUTION
-\}
-
-END_SECTION
 Context()->normalStrings;
 
 #########################################################################################################
@@ -471,30 +453,17 @@ $popup5 = PopUp(["?","Yes", "No"], "No");
 #########################################################################################################
 # Section 7 answers 17,18matrix,19,20matrix,21,22matrix,23, 24,25essay
 #########################################################################################################
-$answers[$i]=$pivot4; $i++;       #17
-$answers[$i]=$dualmatrix3; $i++;
-$answers[$i]=$pivot5;$i++;
-$answers[$i]=$dualmatrix4;$i++;
-$answers[$i]=$pivot6;$i++;
-$answers[$i]=$dualmatrix5;$i++;
-$answers[$i]=$state5;$i++ ;        #23
-$answers[$i]=$popup5; $i++;        #24
-$answers[$i]=String("Essay Answer"); $i++; #25
-#$test_string = $scaffold->requireCorrect(17,18);
-#DEBUG_MESSAGE ($test_string);
 Context()->texStrings;
-$scaffold->DISPLAY_SECTION(
+DISPLAY_SECTION(
 {	name=>" 7. Perform simplex method to find a beginning feasible solution", 
-    canshow =>'($scores[15]==1 and $scores[16]==1 )||$isInstructor',
-    iscorrect=>'($scores[17]==1 and $scores[18]==1 and $scores[19]==1 and $scores[20]==1
-            and  $scores[21]==1 and $scores[22]==1 and $scores[23]==1 and $scores[24]==1
-            and $scores[25]==1)',
+    canshow =>$scaffold->requireCorrect(16)." or $isInstructor",
+    iscorrect=>$scaffold->requireCorrect(17..25),
     section=>7
 },   <<'END_SECTION'); 
 
 
 The first pivot, which will make the right hand side entries positive is 
-\{ANS($pivot4->cmp),$pivot4->ans_rule \}. $PAR
+\{SECTION_ANS($pivot4->cmp),$pivot4->ans_rule \}. $PAR
 Recall that in the case of tie we take entry with the least index
 (i.e. left most or upper most. )
 $PAR
@@ -502,11 +471,11 @@ $PAR
 
 The resulting tableau is  $PAR
 \(\qquad y_0, \qquad\qquad  y_1\qquad\qquad y_2 \qquad\qquad y_3 \qquad\qquad y_4  \qquad -v \qquad -z \qquad b \)
-\{ANS($dualmatrix3->cmp), $dualmatrix3->ans_array() \}
+\{SECTION_ANS($dualmatrix3->cmp), $dualmatrix3->ans_array() \}
 
 The value of \(z=-y_0\) is \($z_initial\). 
 The next pivot, following the simplex method to maximize \(z\), is
-\{ANS($pivot5->cmp), $pivot5->ans_rule\}. 
+\{SECTION_ANS($pivot5->cmp), $pivot5->ans_rule\}. 
 $PAR 
 (Many of the following answers have lots of zeros.  You can use the shortcut
 1E3 to stand for \(1\times 10^3\). )
@@ -516,26 +485,29 @@ hyperplanes intersecting at a point and we have changed our mind about which
 of those three we consider basic. The new tableau is 
 $PAR
 \(\qquad y_0, \qquad\qquad  y_1\qquad\qquad y_2 \qquad\qquad y_3 \qquad\qquad y_4  \qquad -v \qquad -z \qquad b \)
-\{ANS($dualmatrix4->cmp), $dualmatrix4->ans_array() \}
+\{SECTION_ANS($dualmatrix4->cmp), $dualmatrix4->ans_array() \}
 $PAR
-The next pivot \{ANS($pivot6->cmp), $pivot6->ans_rule\} leads to $PAR
+The next pivot \{SECTION_ANS($pivot6->cmp), $pivot6->ans_rule\} leads to $PAR
 \(\qquad y_0, \qquad\qquad  y_1\qquad\qquad y_2 \qquad\qquad y_3 \qquad\qquad y_4  \qquad -v \qquad -z \qquad b \)
-\{ANS($dualmatrix5->cmp), $dualmatrix5->ans_array() \}
+\{SECTION_ANS($dualmatrix5->cmp), $dualmatrix5->ans_array() \}
 
 $PAR and we notice that now \(z=-y_0=0\) so we have found a basic feasible solution to our 
 original dual problem.  The variables \(y_1,y_2,y_3,y_4,v\) for this solution are 
 $PAR
 
-\{ANS($state5->cmp),$state5->ans_array\}
+\{SECTION_ANS($state5->cmp),$state5->ans_array\}
 $PAR
 Do we need to continue to optimize the value for \(z\)?
-\{ANS($popup5->cmp), $popup5->menu()\}  Why? $PAR
-\{ANS(essay_cmp), essay_box(3,80)\}
+\{SECTION_ANS($popup5->cmp), $popup5->menu()\}  Why? $PAR
+\{SECTION_ANS(essay_cmp), essay_box(3,80)\}
 $PAR
 Compare this answer \(v^*= -w^*\) to the dual problem to the optimal value \(P^*\)for the primary problem.
 The problems' goals were to maximize \(P\) and to minimize \(w\). 
 $PAR
-\{$scaffold->SECTION_SOLUTION(<<'END_SOLUTION');
+
+END_SECTION
+
+SECTION_SOLUTION({section=>7},<<'END_SOLUTION');
 
 The first pivot is \($pivot4\) which makes the right hand side entries positive. 
 $PAR
@@ -552,42 +524,28 @@ we cannot increase the value of \(v\) any further. \(v\) is at its maximum
 and \(w=-v\) is at its minimum.  The minimum value of \(w=6000\) which is the 
 same as the maximum profit that we found in the first example.
 END_SOLUTION
-\}
-END_SECTION
 Context()->normalStrings;
 
 
-#autograde answers 
 
-@ans_eval = ();
-@scores = ();
-#DEBUG_MESSAGE("Next answer index $i");
-foreach my $j (1..($#answers)) {
-  $ans_eval[$j] = $answers[$j] ->cmp();
-  $ans_hash[$j] = $ans_eval[$j]->evaluate($inputs_ref->{ANS_NUM_TO_NAME($j)});
-  $scores[$j]   = $ans_hash[$j]->{score};
-  #DEBUG_MESSAGE("scores $j = $scores[$j]");
-}
+############################################################################## 
+# BOILERPLATE
+# autograde answers 
+# answer rules and answer evaluators are matched up in the order in which they are entered.
+# the author must take care that they match up.
+PROCESS_ANSWERS();
 
-#section 1 (1)
-$scores[1]=1 if $inputs_ref->{ANS_NUM_TO_NAME(1)}=~/~~S/ ;  # non-blank essay always passes
-#section 2 (2)
-#section 3 (3,4,5,6,7,8,9,10)
-#section 4 (11)
-#DEBUG_MESSAGE( "checking answer 11", $inputs_ref->{ANS_NUM_TO_NAME(11)}, $inputs_ref->{ANS_NUM_TO_NAME(11)}=~/~~S/ ?1:0);   #non-blank essay answer always passes.
-$scores[11] = 1 if ($inputs_ref->{ANS_NUM_TO_NAME(11)}=~/~~S/ );  # non-blank essay always passes
-#section 5 (matrix, 13, 14essay)
-#DEBUG_MESSAGE( "checking answer 14", $inputs_ref->{ANS_NUM_TO_NAME(14)}, $inputs_ref->{ANS_NUM_TO_NAME(14)}=~/~~S/ ?1:0);   #non-blank essay answer always passes.
-$scores[14] = 1 if ($inputs_ref->{ANS_NUM_TO_NAME(14)}=~/~~S/ );  # non-blank essay always passes
-$scores[15]=1  if ($inputs_ref->{ANS_NUM_TO_NAME(14)}=~/~~S/ );  # non-blank essay always passes
-$scores[25]=1  if ($inputs_ref->{ANS_NUM_TO_NAME(14)}=~/~~S/ );  # non-blank essay always passes
 
-$last_correct_section = $scaffold->PROCESS_SECTIONS();
+# patch automated grading of answers if necessary (e.g. for essay answers)
+# you might have to modify $scaffold->{scores}
+
+
+# determine permissions for sessions and whether they should be colored correct
+$last_correct_section = PROCESS_SECTIONS();
+
+#determine which section to leave open
 $opensection = $last_correct_section + 1;
-#END_SECTIONS($last_correct_section+1);
 $scaffold->openSections($opensection);
-#$scaffold->openSections(1,2,3,4,5,6,7);
+
 TEXT($END_ONE_COLUMN);
-
-
 ENDDOCUMENT();
