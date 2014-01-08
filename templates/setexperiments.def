@@ -2,8 +2,8 @@
 openDate          = 11/10/2013 at 04:00pm EST
 dueDate           = 01/27/2014 at 04:00pm EST
 answerDate        = 01/27/2014 at 04:00pm EST
-paperHeaderFile   = ASimpleCombinedHeaderFile.pg
-screenHeaderFile  = ASimpleCombinedHeaderFile.pg
+paperHeaderFile   = local/experiments/ASimpleCombinedHeaderFile.pg
+screenHeaderFile  = local/experiments/ASimpleCombinedHeaderFile.pg
 description       = 
 problemList       = 
 experiments/cabinets_exp.pg, 1, -1 
