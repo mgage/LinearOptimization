@@ -74,6 +74,45 @@ $steve_money_commitment = 4000;
 $steve_time_commitment  = 500;
 $steve_profit = 4500;
 
+$original_matrix = Matrix([
+[$bill_money_commitment, $steve_money_commitment, 1, 0, 0,0,0, $money_total],
+[$bill_time_commitment,$steve_time_commitment, 0, 1, 0,0,0, $time_total],
+[1,0,0,0,1,0,0,1],
+[0,1,0,0,0,1,0,1],
+[-$bill_profit, -$steve_profit, 0, 0, 0,0,1, 0]
+]);
+$toplabels = [qw(p1 p2 x3 x4 x5 x6 P b)];
+$sidelabels = [' ', qw(cash hours p_1bound p_2obund objfunc) ];
+$matrix1 = $original_matrix;
+
+##############################################################################
+# utility subroutine for checking your answers
+##############################################################################
+
+# size of constraint matrix with slack variables, objective column and constant column
+$row_size =4;         # n-1   n is constraints + objective_role
+$param_size=2;        # original number of parameters in the problem
+$col_size = $param_size+$row_size+2; # m paramvars+slackvars+objcol+constant_col
+# the full tableau has one more row -- the objective function
+sub display_tableau_state {
+	my ($tableau, $matrix, $basis, $state, $pivot)= @_;
+	$basis = $basis->sort;
+	my $basis_matrix = matrix_from_submatrix($original_matrix, [1..$row_size],$basis->data);
+	my $normalized_tableau = $matrix;
+	my $reduced_matrix = matrix_from_matrix_rows($matrix,1..$row_size);
+	my $normalized_reduced_matrix = ($basis_matrix->det)*$reduced_matrix;
+	my $binverse_matrix = ($basis_matrix->inverse)*matrix_from_matrix_rows($original_matrix,1..$row_size);
+	return "
+	<font size='-2'>
+	pivot: \($pivot\) basis: \( $basis\)  basis matrix \($basis_matrix\) $PAR
+	tableau and normalized current tableau  (without the object row)  $PAR
+	 \(" . lp_display_mm($tableau) . "\)\(".lp_display_mm($normalized_tableau). " \) $PAR 
+	original matrxi and current matrix calculated by Binverse*original $PAR
+	\($original_matrix\)  \( $binverse_matrix \)  $PAR
+	state:  \(" . join(", ", @$state) . "\)  $PAR
+	</font>"
+}
+
 # here is the outline of the worksheet project
 # BEGIN_TEXT
 # \{BeginList("OL")\}
@@ -180,42 +219,6 @@ Context()->normalStrings;
 #########################################################################################################
 # Section 2 -- set up tableau
 #########################################################################################################
-$original_matrix = Matrix([
-[$bill_money_commitment, $steve_money_commitment, 1, 0, 0,0,0, $money_total],
-[$bill_time_commitment,$steve_time_commitment, 0, 1, 0,0,0, $time_total],
-[1,0,0,0,1,0,0,1],
-[0,1,0,0,0,1,0,1],
-[-$bill_profit, -$steve_profit, 0, 0, 0,0,1, 0]
-]);
-$matrix1 = $original_matrix;
-
-##############################################################################
-# utility subroutine for checking your answers
-##############################################################################
-
-# size of constraint matrix with slack variables, objective column and constant column
-$row_size =4;         # n-1   n is constraints + objective_role
-$param_size=2;        # original number of parameters in the problem
-$col_size = $param_size+$row_size+2; # m paramvars+slackvars+objcol+constant_col
-# the full tableau has one more row -- the objective function
-sub display_tableau_state {
-	my ($tableau, $matrix, $basis, $state, $pivot)= @_;
-	$basis = $basis->sort;
-	my $basis_matrix = matrix_from_submatrix($original_matrix, [1..$row_size],$basis->data);
-	my $normalized_tableau = $matrix;
-	my $reduced_matrix = matrix_from_matrix_rows($matrix,1..$row_size);
-	my $normalized_reduced_matrix = ($basis_matrix->det)*$reduced_matrix;
-	my $binverse_matrix = ($basis_matrix->inverse)*matrix_from_matrix_rows($original_matrix,1..$row_size);
-	return "
-	<font size='-2'>
-	pivot: \($pivot\) basis: \( $basis\)  basis matrix \($basis_matrix\) $PAR
-	tableau and normalized current tableau  (without the object row)  $PAR
-	 \(" . lp_display_mm($tableau) . "\)\(".lp_display_mm($normalized_tableau). " \) $PAR 
-	original matrxi and current matrix calculated by Binverse*original $PAR
-	\($original_matrix\)  \( $binverse_matrix \)  $PAR
-	state:  \(" . join(", ", @$state) . "\)  $PAR
-	</font>"
-}
 
 
 
@@ -228,10 +231,7 @@ $basis1 = Set(3,4,5,6);
 $statevars1 = ~~@statevars1;
 $state1 = Matrix([[@statevars1]]);
 
-#########################################################################################################
-# section 2  answers (2matrix )
-#########################################################################################################
-
+$matrix1->{top_labels}=$toplabels;
 Context()->texStrings;
 DISPLAY_SECTION( { name=>"2: Write tableau", 
              canshow =>$scaffold->requireCorrect(1,2,3). " or $isInstructor",
@@ -246,17 +246,15 @@ $PAR
 We'll use x3 for the slack variable for the money constraint, x4 for  the time constraint 
 slack variable and x5 and x6 for the slack variables for the contraints on  p1 and p2.
 $PAR
-\(\qquad p_1, \qquad p_2, \qquad\qquad x_3,\qquad\qquad x_4,\qquad x_5,\qquad\qquad x_6,
- \qquad P,\qquad b \)
-$BR 
-\{SECTION_ANS($matrix1->cmp()), $matrix1->ans_array\}
+\{SECTION_ANS($matrix1->cmp()), $matrix1->ans_array()\}
 $PAR
 
 END_SECTION
 
 SECTION_SOLUTION({section=>2},<<'END_SOLUTION');
-\[   \{lp_display_mm($matrix1)\} \]
-
+displayMode $displayMode $PAR
+\[   \{lp_display_mm($matrix1, top_labels=>$toplabels).side_labels($sidelabels)\} \] 
+   
 END_SOLUTION
 Context()->normalStrings;
 
@@ -273,6 +271,7 @@ $pivot1 = Point("(3,1)");
 ($tableau2,$basis2, $statevars2) = lp_basis_pivot($tableau1,$basis1,$pivot1);
 $B2 = matrix_from_submatrix($original_matrix,[1..$row_size],$basis2->data);
 $matrix2 = ($B2->det)*Matrix($tableau2);
+$matrix2->{top_labels}=$toplabels;
 $state2=Matrix([[@$statevars2]]);
 
 #########################################################################################################
@@ -283,6 +282,7 @@ $pivot2 = Point("(1,2)");
 ($tableau3,$basis3, $statevars3) = lp_basis_pivot($tableau2,$basis2,$pivot2);
 $B3 = matrix_from_submatrix($original_matrix,[1..$row_size],$basis3->data);
 $matrix3 = ($B3->det)*Matrix($tableau3);
+$matrix3->{top_labels}=$toplabels;
 $state3=Matrix([[@$statevars3]]);
 
 #########################################################################################################
@@ -293,6 +293,7 @@ $pivot3 = Point("(2,5)");
 ($tableau4,$basis4, $statevars4) = lp_basis_pivot($tableau3,$basis3,$pivot3);
 $B4 = matrix_from_submatrix($original_matrix,[1..$row_size],$basis4->data);
 $matrix4 = ($B4->det)*Matrix($tableau4);
+$matrix4->{top_labels}=$toplabels;
 $state4=Matrix([[@$statevars4]]);
 
 $p1 = $state4->element(1,1);
@@ -337,9 +338,7 @@ Pivot entry: use parentheses as in (row, column): \{SECTION_ANS($pivot1->cmp),$p
 $PAR
 The matrix has been multiplied by a constant so that all values are integers. This is
 the same result as you will obtain using websim.
-$PAR  
-\(\qquad p_1, \qquad p_2, \qquad\qquad x_3,\qquad\qquad x_4, \qquad\qquad x_5,\qquad\qquad x_6,\qquad\qquad -P,\qquad\qquad b \)
-$BR 
+$PAR   
 \{SECTION_ANS($matrix2->cmp()), $matrix2->ans_array(3)\}
 
 $PAR
@@ -348,8 +347,6 @@ $HR
 Next pivot entry: \{SECTION_ANS($pivot2->cmp),$pivot2->ans_rule \}.
 
 $PAR  
-\(\qquad p_1, \qquad\qquad p_2, \qquad\qquad x_3,\qquad\qquad x_4, \qquad\qquad -P,\qquad b \)
-$BR 
 \{SECTION_ANS($matrix3->cmp()), $matrix3->ans_array(3)\}
 
 Next pivot entry: \{SECTION_ANS($pivot3->cmp),$pivot3->ans_rule \}.
@@ -382,7 +379,7 @@ Before pivoting the state is \($state1\) $PAR
 Your first pivot should be on \($pivot1\) since that is the left most column that
 will increase the profit and the first row has the most limiting ratio.
 $PAR
-\( \{lp_display_mm( [$matrix2->value] )\} \) $PAR
+\( \{lp_display_mm( [$matrix2->value],top_labels=>$toplabels )\} \) $PAR
 $PAR
 The next pivot should be \($pivot2\) since increasing the variable for the second column 
 will increase the profit and the smaller ratio is the second row. However I also notice
@@ -390,14 +387,14 @@ that maybe we should have included upper limits on \(p_1\) and \(p_2\) since thi
 "feasible basic solution" has their values greater than 1.  Fortunately the final value
 is a fraction less than 1 so I guess I lucked out.
 $PAR
- \( \{lp_display_mm([$matrix3->value], top_labels=>[qw(x_1 x_2 x_3 x_4 x_5 x_6 obj b)] )\}
+ \( \{lp_display_mm([$matrix3->value], top_labels=>$toplabels )\}
 
  \{side_labels(  qw(\text{cash} \text{hours} \text{profits} ) ) \} \)
 $PAR 
 # 
 
 one more
- \( \{lp_display_mm([$matrix4->value],  )\} \)
+ \( \{lp_display_mm([$matrix4->value],top_labels=>$toplabels  )\} \)
  $PAR
 At this point you are done since changing any of the non basic variables will only 
 decrease the profit.
@@ -469,7 +466,9 @@ $dualtableau1 = [[-$bill_money_commitment,-$bill_time_commitment, 1, 0,  1, 0, 0
                  [-$steve_money_commitment, -$steve_time_commitment,0,1, 0, 1, 0,-$steve_profit],
                  [${money_total},${time_total},1, 1, 0,0, 1,0]];
 $dualmatrix1 = Matrix($dualtableau1);
-$dualtableau1_string =  lp_display_mm($dualtableau1);
+$dualtoplabels = [qw(y1 y2 y3 y4 y5 y6 -v b)];
+$dualmatrix1->{top_labels}=$dualtoplabels;
+$dualtableau1_string =  lp_display_mm($dualtableau1,top_labels=>$dualtoplabels);
 
 $popup = PopUp(["?","Yes", "No"], "No");
 Context()->texStrings;
@@ -523,7 +522,8 @@ $dualtableau2 = [[-1,-$bill_money_commitment,-$bill_time_commitment, 1, 0, 	1,0,
                  [1,0,0,0,0,0,0,0,1,0],
                  [0,$money_total,$time_total,1,1,0,0,1,0,0]];
 $dualmatrix2 = Matrix($dualtableau2);
-
+$dualtoplabelsphase1 = [qw(y0 y1 y2 y3 y4 y5 y6 -v -z b)];
+$dualmatrix2->{top_labels}= $dualtoplabelsphase1;
 $dual_constraint1phase1 = Compute("-${bill_money_commitment}y1 -${bill_time_commitment}y2 -y3 <=-$bill_profit+y0");
 $dual_constraint2phase1 = Compute("-${steve_money_commitment}y1 -${steve_time_commitment}y2 -y4 <=-$steve_profit+y0");
 $dualconstraintsphase1 = List($dual_constraint1phase1,$dual_constraint2phase1);
@@ -550,7 +550,6 @@ Add a first column for the extra slack variable and a next to the last row
 for the new objective function and write the new tableau. The last row is the original
 dual objective function which we'll just carry along.
 $PAR
-\(\qquad y_0, \qquad\qquad  y_1\qquad\qquad y_2, \qquad\qquad y_3,\qquad\qquad y_4, \qquad -v \qquad\qquad -z,\qquad b \)
 \{SECTION_ANS($dualmatrix2->cmp()), $dualmatrix2->ans_array \}
 $PAR
 END_SECTION
@@ -580,15 +579,18 @@ Context()->normalStrings;
 $pivot4 = Point("(1,1)");
 $dualtableau3 = lp_pivot($dualtableau2,0,0);
 $dualmatrix3 = Matrix($dualtableau3);
+$dualmatrix3->{top_labels}=$dualtoplabelsphase1;
 $dualtableau3_string =  lp_display_mm($dualtableau3);
 $z_initial=-4500;  # a hint
 $pivot5 = Point("(2,2)");
 $dualtableau4 = lp_pivot($dualtableau3,1,1);
 $dualmatrix4 = 1000*Matrix($dualtableau4);
+$dualmatrix4->{top_labels}=$dualtoplabelsphase1;
 $dualtableau4_string =  lp_display_mm($dualmatrix4);
 $pivot6 = Point("(1,3)");
 $dualtableau5 = lp_pivot($dualtableau4,0,2);
 $dualmatrix5 = 9E5*Matrix($dualtableau5);
+$dualmatrix5->{top_labels}=$dualtoplabelsphase1;
 $dualtableau5_string =  lp_display_mm($dualmatrix5);
 $state5 = Matrix([[1/2,5,0,0,-6000]]);
 $popup5 = PopUp(["?","Yes", "No"], "No");
@@ -614,7 +616,6 @@ $PAR
 
 
 The resulting tableau is  $PAR
-\(\qquad y_0, \qquad\qquad  y_1\qquad\qquad y_2 \qquad\qquad y_3 \qquad\qquad y_4  \qquad -v \qquad -z \qquad b \)
 \{SECTION_ANS($dualmatrix3->cmp), $dualmatrix3->ans_array() \}
 
 The value of \(z=-y_0\) is \($z_initial\). 
@@ -629,11 +630,9 @@ Notice that because of the zero on the right hand side none of the state variabl
 hyperplanes intersecting at a point and we have changed our mind about which
 of those three we consider basic. The new tableau is 
 $PAR
-\(\qquad y_0, \qquad\qquad  y_1\qquad\qquad y_2 \qquad\qquad y_3 \qquad\qquad y_4  \qquad -v \qquad -z \qquad b \)
 \{SECTION_ANS($dualmatrix4->cmp), $dualmatrix4->ans_array() \}
 $PAR
 The next pivot \{SECTION_ANS($pivot6->cmp), $pivot6->ans_rule\} leads to $PAR
-\(\qquad y_0, \qquad\qquad  y_1\qquad\qquad y_2 \qquad\qquad y_3 \qquad\qquad y_4  \qquad -v \qquad -z \qquad b \)
 \{SECTION_ANS($dualmatrix5->cmp), $dualmatrix5->ans_array() \}
 
 $PAR and we notice that now \(z=-y_0=0\) so we have found a basic feasible solution to our 

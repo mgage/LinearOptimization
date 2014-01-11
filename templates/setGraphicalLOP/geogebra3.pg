@@ -1,0 +1,112 @@
+##DESCRIPTION
+##  Algebra problem: true or false for inequality 
+##ENDDESCRIPTION
+
+##KEYWORDS('algebra', 'inequality', 'fraction')
+
+## DBsubject('Algebra')
+## DBchapter('Fundamentals')
+## DBsection('Real Numbers')
+## Date('6/3/2002')
+## Author('')
+## Institution('')
+## TitleText1('Precalculus')
+## EditionText1('3')
+## AuthorText1('Stewart, Redlin, Watson')
+## Section1('1.1')
+## Problem1('22')
+
+########################################################################
+
+DOCUMENT();      
+
+loadMacros(
+   "PGstandard.pl",     # Standard macros for PG language
+   "MathObjects.pl",
+   #"source.pl",        # allows code to be displayed on certain sites.
+   #"PGcourse.pl",      # Customization file for the course
+);
+
+# Print problem number and point value (weight) for the problem
+TEXT(beginproblem());
+
+# Show which answers are correct and which ones are incorrect
+$showPartialCorrectAnswers = 1;
+
+##############################################################
+#
+#  Setup
+#
+#
+Context("Numeric");
+
+##############################################################
+#
+#  Text
+#
+#
+HEADER_TEXT(<<END_TEXT);
+<style>
+#window-one { 
+width:562px;
+height:562px; 
+-webkit-transform: scale(0.5);
+-webkit-transform-origin: 0 0;
+margin-bottom:-250px;
+margin-right:-250px;
+}
+#window-two { 
+width:562px;
+height:562px;
+-webkit-transform: scale(0.2);
+-webkit-transform-origin: 0 0;
+margin-bottom:-400px;
+margin-right:-400px;
+}
+
+</style>
+
+END_TEXT
+
+Context()->texStrings;
+BEGIN_TEXT
+
+\{iframe( alias('geogebra_test.html'), id=>"window-one"  ) \}
+
+\{iframe( alias('geogebra_test.html'), id=>"window-two" ) \}
+
+$PAR
+
+Alias will fine the associated geogebra html file if it is in a folder 
+next to the .pg file. (There are other places it searches as well.) Then
+it creates a link from a publicly web accessible directory to the file.
+$PAR
+Address produced by "alias()": \{alias('geogebra_test.html')\}
+<p>More text</p>
+<script type="text/javascript"> 
+function setCoords(objName, x, y) {
+  // build string like "B = (3, 2)" from input parameters
+  // and let the applet evaluate this string
+  var ifrm = document.getElementById("window-one");
+  var applet = ifrm.contentDocument.ggbApplet;
+  console.log("applet" + applet);
+  applet.evalCommand(objName + " = (" + x + ", " + y + ")");
+}
+</script> 
+
+<input type="button" value="set coords of B: " onclick="setCoords('B', setXfield.value, setYfield.value);"> 
+<input type="text" name="setXfield" size="5" value="2"> 
+<input type="text" name="setYfield" size="5" value="2"> 
+
+END_TEXT
+Context()->normalStrings;
+
+##############################################################
+#
+#  Answers
+#
+#
+
+
+
+ENDDOCUMENT();        

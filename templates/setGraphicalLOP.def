@@ -1,0 +1,11 @@
+
+openDate          = 01/01/2014 at 06:43pm EST
+dueDate           = 01/14/2014 at 06:43pm EST
+answerDate        = 01/14/2014 at 06:43pm EST
+paperHeaderFile   = defaultHeader
+screenHeaderFile  = setGraphicalLOP/ASimpleCombinedHeaderFile.pg
+description       = Linear programming with two variables using interactive graphics.
+problemList       = 
+setGraphicalLOP/geogebra2.pg, 1, -1 
+setGraphicalLOP/geogebra3.pg, 1, -1 
+
