@@ -101,7 +101,7 @@ Now write the constraints for the mathematical linear optimization problem (LOP)
 of the constraint equations by a comma. The order of the constraint equations does not matter.
 $PAR
 \{ANS($constraints->cmp), ans_box(3, 80)\}$BR 
-the variables are non-negative: \(x_{1},x_{2}, x_{3}, x_{4}\ge 0\). You don't need to include this.
+the variables are non-negative: \(x_{1},x_{2}, x_{3}, x_{4}\ge 0\). You don't need to include these conditions.
 
 \[
 \begin{matrix}

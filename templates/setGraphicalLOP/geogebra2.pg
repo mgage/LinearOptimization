@@ -111,56 +111,7 @@ function getAppletValues() {
  </script>
 END_SCRIPT
 
-#
-#  You manually define the answers
-#
-
-  
-# @answers = ();
-# # $i = 1;
-# # # Section 1 (1,2,3)
-# # $answers[$i]= String("Essay answer");$i++;
-# # $answers[$i] = $objective_function;$i++;
-# # $answers[$i]= String("Essay answer");$i++;
-# # 
-# # # Section 2 (4,5,6)
-# # $answers[$i]= String("Essay answer");$i++;
-# # $answers[$i] = Matrix([[-2,1,1,0,0,0,2],
-# #                        [-1,2,0,1,0,0,7],
-# #                        [1, 0,0,0,1,0,3],
-# #                        [-1,-2,0,0,0,-1,0]
-# #      ]);$i++;
-# # $answers[$i] = Matrix([[0,0,2,7,3,0]]);$i++;
-# $i=7;
-# # Section 3 (7, 8, 9)
-# $answers[$i]= String("Essay answer");$i++;
-# $answers[$i] = Matrix([[-2,1,1,0,0,0,2],
-#                        [ 3,0,-2,1,0,0,3],
-#                        [1, 0,0,0,1,0,3],
-#                        [-5, 0,2,0,0,-1,4]
-#      ]);$i++;
-# $answers[$i] = Matrix([0,2,0,3,3,-4]);$i++;
-# 
-# # Section 4 (10,11,12)
-# $answers[$i]= String("Essay answer");$i++;
-# $answers[$i] = Matrix([[0, 1, -1/3, 2/3, 0, 0, 4],
-#                        [ 1,0, -2/3,1/3,0,0,1],
-#                        [0, 0, 2/3,-1/3,1,0,2],
-#                        [0, 0,-4/3,5/3,0,-1,9]
-#      ]);$i++;
-# $answers[$i] = Matrix([1,4,0,0,2,-9]);$i++;
-# 
-# # section 5 (13,14,15)
-# $answers[$i] = Matrix([[0,1,0,1/2,1/2,0,5],
-#                        [ 1,0,0,0,1,0,3],
-#                        [0, 0,1,-1/2,3/2,0,3],
-#                        [0,0,0,1,2,-1,13]
-#      ]);$i++;
-# $answers[$i] = Matrix([3,5,3,0,0,-13]);$i++;
-# $answers[$i]= String("Essay answer");$i++;
-# 
-
-
+ 
 
 
 
@@ -170,10 +121,24 @@ TEXT(  MODES(TeX=>'geogebraweb code',
                                 reinitialize_button => 1, 
                                 includeAnswerBox=>0,)
  ) );
-#########################
-# start sections
-#########################
+#################################################################
+# Initialize sections
+#################################################################
+#BOILERPLATE
 $scaffold = Scaffold();
+
+
+#this creates syntactic sugar subroutines 
+# Pass in the string name of the Scaffold e.g.  INITIALIZE_SCAFFOLD('$scaffold');
+#
+INITIALIZE_SCAFFOLD('$scaffold');
+
+# $isInstructor allows instructors to open sections at will 
+# if you use constructions such as 
+#       canshow =>$scaffold->requireCorrect(1). " or $isInstructor",
+# This is particularly convenient while writing and debugging the problem.
+$isInstructor =  ($envir{effectivePermissionLevel} >= $envir{ALWAYS_SHOW_SOLUTION_PERMISSION_LEVEL});
+#$isInstructor=0;
 
 ##############################################
 #  section 1
@@ -200,7 +165,7 @@ $options1 = {name=>"1. Set up algebraic equations from graph",
              iscorrect =>$scaffold->requireCorrect(1,2,3),
              section=>1};
 Context()->texStrings;
-$scaffold->DISPLAY_SECTION({
+DISPLAY_SECTION({
 	name=>"1. Set up algebraic equations from graph", 
     canshow =>1, 
     iscorrect =>$scaffold->requireCorrect(1,2),
@@ -210,23 +175,23 @@ Describe the feasible set (in white) above with 3 inequalities
 (you do not need to include  \(x\ge 0, y\ge 0 \)  )
 $PAR
 
-\{$scaffold->ANS($constraints->cmp), ans_box(4,80) \}
+\{SECTION_ANS($constraints->cmp), ans_box(4,80) \}
 
 $PAR
 You can't easily determine the objective function completely just by looking at the level lines but if 
 I tell you that the gradient of the objective function is \($objective_gradient\) then you can.
 $PAR
 The objective function is 
-\(z= \)\{$scaffold->ANS($objective_function->cmp), $objective_function->ans_rule()\}
+\(z= \)\{SECTION_ANS($objective_function->cmp), $objective_function->ans_rule()\}
 $PAR
 If you know that the gradient is constant can you determine it's value by moving the level line? 
 How?
-\{$scaffold->ANS(essay_cmp), essay_box(4,80) \} 
+\{SECTION_ANS(essay_cmp), essay_box(4,80) \} 
 $PAR
 
 END_SECTION
 
-$scaffold->SECTION_SOLUTION({section=>1},<<'END_SOLUTION');
+SECTION_SOLUTION({section=>1},<<'END_SOLUTION');
 \(
  -x +    2y \le7,
  -2x  +y \le2,
@@ -259,7 +224,7 @@ $tableau1 = Matrix([   [$a1, $b1, 1, 0, 0, 0, $c1],
 $state1 = Matrix([[0,0,2,7,3,0]]);
 
 Context()->texStrings;
-$scaffold->DISPLAY_SECTION({name=>"2. Set up matrix from inequalities", 
+DISPLAY_SECTION({name=>"2. Set up matrix from inequalities", 
              canshow =>$scaffold->requireCorrect(1,2), # don't grade essay Answers
              iscorrect => $scaffold->requireCorrect(4,5,6),
              section=>2 }, 
@@ -268,7 +233,7 @@ $scaffold->DISPLAY_SECTION({name=>"2. Set up matrix from inequalities",
 Write the 3 inequalities in equality form using slack variables x3, x4 ,x5 for the inequality constraints
 C3:\($constraint1\), C4:\($constraint2\), and C5:\($constraint3\) respectively:
 $PAR
-	\{$scaffold->ANS($equalities->cmp), ans_box(5,80) \} 
+	\{SECTION_ANS($equalities->cmp), ans_box(5,80) \} 
 $PAR
 Write the coefficients in tableau (matrix) form. The first two columns will be the "parameters" 
 or "non-basic" variables \(x, y\). The next three columns will be the "slack" or "basic" variables. The next to 
@@ -277,10 +242,10 @@ on one side of the equation. (The coeffient of \(z\) will be \( 1 \) ).  The fin
 constants for the original inequalities and in the last row the constant \(0 \) for the objective function. 
 List the constraints in order C3, C4, C5. 
 $PAR
-	\{$scaffold->ANS($tableau1->cmp),$tableau1->ans_array\}
+	\{SECTION_ANS($tableau1->cmp),$tableau1->ans_array\}
 $PAR
 
-The starting vector is   \{$scaffold->ANS($state1->cmp),$state1->ans_array\}. 
+The starting vector is   \{SECTION_ANS($state1->cmp),$state1->ans_array\}. 
 
 $PAR
 The last entry is the value for \(z\) the output of the objective function.
@@ -298,7 +263,7 @@ $PAR
 
 END_SECTION
 
-$scaffold->SECTION_SOLUTION({section=>2}, <<'END_SOLUTION');
+SECTION_SOLUTION({section=>2}, <<'END_SOLUTION');
 \[\begin{aligned}
   $equality1&\\
   $equality2&\\
@@ -347,7 +312,7 @@ $state7  = Matrix([[0,2,0,3,3,-4]]);
 
 
 Context()->texStrings;
-$scaffold->DISPLAY_SECTION({
+DISPLAY_SECTION({
              name=>"3. The first pivot", 
              canshow =>$scaffold->requireCorrect(4,5,6), 
              iscorrect => $scaffold->requireCorrect(7,8,9), 
@@ -360,22 +325,22 @@ Increasing either \(x\) or \(y\) will decrease the \(z\) \(-${obj1}x -${obj2}y +
 but increasing \(y\) will decrease the value of \(z\) faster. As you change \(y\) the
 values of \(x3, x4, x5\) will also change in order to satisfy the three constraint equations.
 $PAR 
-How much can \(y\) be increased? $\(y\) can be increased by \{$scaffold->ANS($ratio1->cmp),ans_rule()\}
+How much can \(y\) be increased? \(y\) can be increased by \{SECTION_ANS($ratio1->cmp),ans_rule()\}
 $PAR
 \{$mc->print_q()\}
 
-\{$scaffold->ANS(radio_cmp($mc->correct_ans) ), $mc->print_a()   \}
+\{SECTION_ANS(radio_cmp($mc->correct_ans) ), $mc->print_a()   \}
 $PAR
 The new \(y\) is? 
 
-\{$scaffold->ANS($ratio1->cmp),ans_rule()\} 
+\{SECTION_ANS($ratio1->cmp),ans_rule()\} 
 and the value of \(x4\)  is 
 
-\{$scaffold->ANS( Real(0)->cmp),  ans_rule() \}
+\{SECTION_ANS( Real(0)->cmp),  ans_rule() \}
 
 $PAR
 How can you determine this algebraically?
-$PAR \{$scaffold->ANS(essay_cmp()),essay_box(4,80) \}
+$PAR \{SECTION_ANS(essay_cmp()),essay_box(4,80) \}
 $PAR
 In the new position the slack variable \(x_4\) is now zero -- and we want to replace it with a new basis column,
 the one corresponding to \(y\) which we have just changed. We want to easily express \, x_4, x_5 \) in terms of 
@@ -393,13 +358,13 @@ For help from a computer in doing the arithmetic visit: $BBOLD
 $PAR
 The new coefficient matrix is $PAR
 
-\{$scaffold->ANS($tableau2->cmp),$tableau2->ans_array\}
+\{SECTION_ANS($tableau2->cmp),$tableau2->ans_array\}
 
 $PAR
 and the new state vector is: $PAR \(x,y,x_3,x_4,x_5,z =\)  
 
-\{#$scaffold->ANS($state7->cmp),$state7->ans_array\}
-\{$scaffold->ANS($state1->cmp),$state7->ans_array\}
+\{#SECTION_ANS($state7->cmp),$state7->ans_array\}
+\{SECTION_ANS($state1->cmp),$state7->ans_array\}
 $PAR
 
 Think about what determined the pivot column? What determined the pivot row?
@@ -408,7 +373,7 @@ $PAR
 
 END_SECTION
 
-$scaffold->SECTION_SOLUTION( {section=>3}, <<'END_SOLUTION');
+SECTION_SOLUTION( {section=>3}, <<'END_SOLUTION');
 \(y\) can be increased to $ratio1.  The second inequality C4 is the one which stops it from increasing
 further since if \(y\) were any bigger \(x_4\) would become negative. 
 Slack variables should always be greater than or equal to zero.
@@ -444,7 +409,7 @@ $state3 = Matrix([[1,4,0,0,2,-9]]);
 
 
 Context()->texStrings;
-$scaffold->DISPLAY_SECTION({
+DISPLAY_SECTION({
             name=>"4. Another pivot", 
             canshow =>$scaffold->requireCorrect(7,8,9,10,12,13), 
             iscorrect => $scaffold->requireCorrect(15,16),
@@ -452,15 +417,15 @@ $scaffold->DISPLAY_SECTION({
 }, <<'END_SECTION'); 
 
 Describe which variable you are going to change next and why. $PAR
-\{$scaffold->ANS( essay_cmp() ), essay_box(5,80) \}
+\{SECTION_ANS( essay_cmp() ), essay_box(5,80) \}
 $PAR
 After moving and pivoting the new matrix is:$PAR
 
-\{$scaffold->ANS($tableau3->cmp),$tableau3->ans_array\}
+\{SECTION_ANS($tableau3->cmp),$tableau3->ans_array\}
 
 and the new state vector is: $PAR
 
-\{$scaffold->ANS($state3->cmp),$state3->ans_array\}
+\{SECTION_ANS($state3->cmp),$state3->ans_array\}
 
 $PAR
 (Normalize the matrix so that the pivot entries are 3 and all of the entries
@@ -471,7 +436,7 @@ $PAR
 
 END_SECTION
 
-$scaffold->SECTION_SOLUTION({section=>4},<<'END_SOLUTION');
+SECTION_SOLUTION({section=>4},<<'END_SOLUTION');
 We'll change \(x\) since increasing that will decrease   \(z\).
 The limiting occurs in row 3 so we will pivot so that row 2, column 1 is a basic.
 $PAR
@@ -505,7 +470,7 @@ $tableau4 = 2*Matrix([[0,1,0,1/2,1/2,0,5],
 $state4 = Matrix([[3,5,3,0,0,-13]]);
 
 Context()->texStrings;
-$scaffold->DISPLAY_SECTION({
+DISPLAY_SECTION({
             name=>"5. Final pivot", 
             canshow =>$scaffold->requireCorrect(15,16), #don't check essay 
             iscorrect => $scaffold->requireCorrect(17,18),
@@ -514,20 +479,20 @@ $scaffold->DISPLAY_SECTION({
 Perform the final move. 
 $PAR
 After moving and pivoting and multiplying by 2 to remove fractions the new matrix is:$PAR
-\{$scaffold->ANS($tableau4->cmp), $tableau4->ans_array \}$PAR
+\{SECTION_ANS($tableau4->cmp), $tableau4->ans_array \}$PAR
 and the new state vector is: 
 $PAR
-\{$scaffold->ANS($state4->cmp), $state4->ans_array\}
+\{SECTION_ANS($state4->cmp), $state4->ans_array\}
 $PAR
 How can you tell that you are done and have reached a minimum?
 $PAR
-\{$scaffold->ANS(essay_cmp()), essay_box\}
+\{SECTION_ANS(essay_cmp()), essay_box\}
 
 $PAR
 
 END_SECTION
 
-$scaffold->SECTION_SOLUTION({section=>5}, <<'END_SOLUTION');
+SECTION_SOLUTION({section=>5}, <<'END_SOLUTION');
 
 
 \[
@@ -559,7 +524,7 @@ Context()->normalStrings;
 # autograde answers 
 # answer rules and answer evaluators are matched up in the order in which they are entered.
 # the author must take care that they match up.
-$scaffold->PROCESS_ANSWERS();
+PROCESS_ANSWERS();
 
 
 # patch automated grading of answers if necessary (e.g. for essay answers)
@@ -567,7 +532,7 @@ $scaffold->PROCESS_ANSWERS();
 
 
 # determine permissions for sessions and whether they should be colored correct
-$last_correct_section = $scaffold->PROCESS_SECTIONS();
+$last_correct_section = PROCESS_SECTIONS();
 #determine which section to leave open
 $opensection = $last_correct_section + 1;
 $scaffold->openSections($opensection);

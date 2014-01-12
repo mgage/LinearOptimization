@@ -110,12 +110,10 @@ $multianswer = MultiAnswer(Real(20),Real(0),$objfunction->eval(y1=>20,y2=>0)) ->
 Context()->texStrings;
 BEGIN_TEXT
 
-This is the same as problem number 1 but this time the task is to find the dual LOP of the 
-problem. $PAR
+This is the same as problem number 1 but this time our task is to find the dual LOP of the 
+problem described below. $PAR
 
-What task or requirement leads one to construct the dual problem?
-??????
-
+Think about the purpose of setting up the dual problem.
 $PAR
 
 A manufacturer of kitchen cabinets is trying to maximize the weekly revenue of a factory.  Many orders 
@@ -134,7 +132,7 @@ on wood and the constraint on labor respectively. Write the constraints.
 $PAR
 \{ANS($constraints->cmp), ans_box(5, 80)\}
 $PAR
-All of the \(x_i,y_j\) variables are non-negative.  You do not need to enter that.
+All of the \(x_i,y_j\) variables are non-negative.  You do not need to enter these conditions.
 
 \[
 \begin{matrix}
