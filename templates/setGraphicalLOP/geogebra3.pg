@@ -23,8 +23,8 @@ DOCUMENT();
 loadMacros(
    "PGstandard.pl",     # Standard macros for PG language
    "MathObjects.pl",
-   #"source.pl",        # allows code to be displayed on certain sites.
-   #"PGcourse.pl",      # Customization file for the course
+   "source.pl",        # allows code to be displayed on certain sites.
+   "PGcourse.pl",      # Customization file for the course
 );
 
 # Print problem number and point value (weight) for the problem
@@ -81,8 +81,10 @@ Alias will fine the associated geogebra html file if it is in a folder
 next to the .pg file. (There are other places it searches as well.) Then
 it creates a link from a publicly web accessible directory to the file.
 $PAR
-Address produced by "alias()": \{alias('geogebra_test.html')\}
-<p>More text</p>
+Address produced by "alias()": \{protect_underbar(  alias('geogebra_test.html') )\}
+<p>This button interacts with the first figure</p>
+\{ 
+MODES(TeX=>"javaScript", HTML=><<EOT);
 <script type="text/javascript"> 
 function setCoords(objName, x, y) {
   // build string like "B = (3, 2)" from input parameters
@@ -97,7 +99,8 @@ function setCoords(objName, x, y) {
 <input type="button" value="set coords of B: " onclick="setCoords('B', setXfield.value, setYfield.value);"> 
 <input type="text" name="setXfield" size="5" value="2"> 
 <input type="text" name="setYfield" size="5" value="2"> 
-
+EOT
+\}
 END_TEXT
 Context()->normalStrings;
 

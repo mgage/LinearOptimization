@@ -10,10 +10,10 @@ loadMacros(
 "PGmatrixmacros.pl",
 "LinearProgramming.pl",
 "parserLinearInequality.pl",
-"parserPopup.pl",
 "compoundProblem5.pl",
 "gage_matrix_ops.pl",
 "PGinfo.pl",
+"source.pl",
 "PGcourse.pl",
 );
 
@@ -387,11 +387,10 @@ that maybe we should have included upper limits on \(p_1\) and \(p_2\) since thi
 "feasible basic solution" has their values greater than 1.  Fortunately the final value
 is a fraction less than 1 so I guess I lucked out.
 $PAR
- \( \{lp_display_mm([$matrix3->value], top_labels=>$toplabels )\}
-
- \{side_labels(  qw(\text{cash} \text{hours} \text{profits} ) ) \} \)
+ \( \{lp_display_mm([$matrix3->value], top_labels=>$toplabels )\}\)
+\( \{side_labels(  qw(\text{cash} \text{hours} \text{profits} ) ) \}      \)
 $PAR 
-# 
+ 
 
 one more
  \( \{lp_display_mm([$matrix4->value],top_labels=>$toplabels  )\} \)
